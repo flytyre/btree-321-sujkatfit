@@ -1,0 +1,39 @@
+
+public class GeneBankCreateBTree {
+
+	public static void main (String[] args) {
+		//at least 4 argument max of 6
+		if (args.length < 4 || args.length > 6) {
+			printUsage(0);
+		}
+		
+		
+		
+		
+		int k = Integer.parseInt(args[3]); // maybe protect this
+		if (k < 1 || k > 31) {
+			printUsage(4);
+		}
+		
+		
+		
+		
+	}
+	
+	static void printUsage(int code) {
+		switch (code) {
+		case (0):	System.err.println("Invalid number of arguments.");
+		
+		case (4):	System.err.println("Invalid sequence length");
+		
+		
+		}
+		
+		
+		// print usage here
+		
+		System.exit(1);
+	}
+	
+}
+

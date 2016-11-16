@@ -1,0 +1,7 @@
+1479269225642	Rename type 'Key'
+1479269369097	Rename type 'Node'
+1479269434573	Rename method 'getKey'
+1479269449556	Rename method 'removeKey'
+1479269459086	Rename method 'getNumKeys'
+1479269477720	Rename field 'keys'
+1479273145582	Rename field 'reading'
