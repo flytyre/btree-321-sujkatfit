@@ -7,27 +7,42 @@ public class GeneBankCreateBTree {
 		
 		File file = null; // TODO: collect this data from args
 		Scanner fileScan;
-		Scanner lineScan;
 		int k;
-		int t = 0; // TODO: collect this data from args
-		String line;
-		String seq = "";
-		String flag = "ORIGIN";
-		String DELIMITER = "[actgn]*";
+		int t; // TODO: collect this data from args
+		int cache;
+		String prevLine = "";
+		String nextLine = "";
+		String line = "";
+		String dseq = "";
+		String bseq = "";
+		String startflag = "ORIGIN";
+		String endflag = "//";
+		String DELIMITER = "[actgn/]*";
 		
-		//at least 4 argument max of 6
+		// Check for invalid number of arguments.
 		if (args.length < 4 || args.length > 6) {
 			printUsage(0);
 		}
 		
-		k = Integer.parseInt(args[3]); // maybe protect this
+		cache = Integer.parseInt(args[1]);
+		
+		
+		// Collect t and check for validity.
+		t = Integer.parseInt(args[1]); 
+		if (t < 0 || t == 1) {
+			printUsage(2);
+		} else if (t == 0) {
+			// TODO: Generate optimum t based on disk block 
+			// of 4096 and size of BTreeNode on disk. <-- what is this?
+		}
+		
+		// Collect k and check for validity.
+		k = Integer.parseInt(args[3]); // maybe protect this?
 		if (k < 1 || k > 31) {
 			printUsage(4);
 		}
-		
 	
-		
-		BTree tree = new BTree(t);	
+		BTree tree = new BTree(t);
 
 //		try {
 //			fileScan = new Scanner(file);
@@ -40,51 +55,85 @@ public class GeneBankCreateBTree {
 		fileScan = new Scanner(file);
 		
 		// Position the scanners.
+		// Possibly merge this with while loops below?
 		while (fileScan.hasNextLine()) {	
-			lineScan = new Scanner(fileScan.nextLine());
-			String token = lineScan.next();
+			line = fileScan.nextLine();
 			
-			while (lineScan.hasNext()) {
-				if (token.equals(flag)) {
-					break;
-				} 
-			}	
+			if (!line.contains(startflag)) {
+				break;	
+			}				
 		}
 	
-		// Apply delimiter to line-by-line scanner.
-		// Do it this way because left-to-right 
-		// scanner is re-instantiated repeatedly.
+		// Apply delimiter to the scanner.
 		fileScan.useDelimiter(DELIMITER);
 
 		// At this point, scanner is pointing at ORIGIN.
 		// This is one line above the DNA sequences.
-		int maxKeys = 100; // TODO: add eqn for max # of keys using degree (t)
+		if (fileScan.hasNextLine()) {
+			nextLine = fileScan.nextLine().toLowerCase();
+		}
 		
-		
-		while(tree.getUniques() < maxKeys && fileScan.hasNextLine()) {
+		// Scanner will always be pointing to the line 
+		// after the one we are currently working on.  
+		// This is necessary for wrapping.
+		while(!nextLine.contains(endflag)) { // continue until all data is read, this may need to be changed.
 
-			line = fileScan.next().toLowerCase();
-			int start = 0;
-					
-			// XXX: This does not allow wrapping 
-			// sequence to next line, should it??
-			while (start < line.length() - k) {
+			int start = 0;		// reset cursor
+			line = nextLine;	// advance line
+			nextLine = fileScan.nextLine().toLowerCase();	// grab next line
+			
+			// outer while breaks when // is collected as next line
+			// meaning line is the last line of dna sequences
+			// holy crap my head hurts
+			
+			while (start < line.length()) {
+			
+				int end = start + k;
 				
-				for (int i = start; i < start + k; i++) {
-					char c = line.charAt(i);
+				// If the sequence collected fits on the current line.
+				if (end < line.length()) {
+				
+					for (int i = start; i < end; i++) {
+						dseq += line.charAt(i);	
+					}
 					
-					switch (c) {
-						case ('a'): seq += "00";
-						case ('c'): seq += "01";
-						case ('g'): seq += "10";
-						case ('t'): seq += "11";	
-					}					
+				// If we have to wrap to the next line to finish the sequence.
+				} else {
+					
+					end = k - (nextLine.length() - start);
+					
+					for (int i = start; i < line.length(); i++) {
+						dseq += line.charAt(i);	
+					}
+					
+					for (int i = 0; i < end; i++) {
+						dseq += nextLine.charAt(i);
+					}
 				}
 				
-				TreeObject obj = new TreeObject(Long.parseLong(seq));
-				tree.insert(obj);
-				start++;
-			}
+				// Convert the collected DNA sequence to binary.
+				if (dseq.length() == k) {	// discard any sequences < k
+					for (int i = 0; i < dseq.length(); i++) {
+						char c = dseq.charAt(i);
+				
+						switch (c) {
+							case ('a'): bseq += "00";
+							case ('c'): bseq += "01";
+							case ('g'): bseq += "10";
+							case ('t'): bseq += "11";	
+						}		
+					}
+				
+					// Add the binary sequence to the tree.
+					TreeObject obj = new TreeObject(Long.parseLong(bseq));
+					tree.insert(obj);
+				}
+				
+				start++;	// advance cursor
+				dseq = "";	// clear sequences
+				bseq = ""; 
+				
+			}			
 		}
 	}
 		
@@ -92,7 +141,9 @@ public class GeneBankCreateBTree {
 	static void printUsage(int code) {
 		switch (code) {
 		case (0):	System.err.println("Invalid number of arguments.");
-		
+		// case 1: the cache option is invalid
+		// case 2: the degree given is invalid
+		// case 3: the gbk file does not exist
 		case (4):	System.err.println("Invalid sequence length");
 		
 		

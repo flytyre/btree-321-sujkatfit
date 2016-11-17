@@ -8,6 +8,11 @@ public class BTree {
 		this.degree = degree;
 	}
 	
+	/**
+	 * This method is a nightmare.
+	 * Adjusts node locations when inserting. 
+	 * @param node
+	 */
 	public void move(BTreeNode node) {
 		BTreeNode parent = node.getParent();
 	
@@ -19,10 +24,15 @@ public class BTree {
 	}
 	
 	public void insert(TreeObject t) {
+		
 		// this does nothing right now
+		
 	}
 	
 	public int getUniques() {
 		return uniques;
 	}
+
+	
+	
 }
