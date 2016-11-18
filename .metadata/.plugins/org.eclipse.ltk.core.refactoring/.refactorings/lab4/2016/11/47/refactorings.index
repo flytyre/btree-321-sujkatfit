@@ -6,3 +6,6 @@
 1479269477720	Rename field 'keys'
 1479273145582	Rename field 'reading'
 1479499938719	Rename local variable 'fileScan'
+1479502402258	Rename method 'compare'
+1479505367638	Rename local variable 'i'
+1479505444776	Rename local variable 'index'

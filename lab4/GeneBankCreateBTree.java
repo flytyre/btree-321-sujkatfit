@@ -4,9 +4,12 @@ import java.util.Scanner;
 /**
  * [STATUS] Nearly complete.
  * TODO: Implement degree generation based on BTreeNode disk size.
+ * TODO: Implement debugging.
  * 
- * Driver class.
+ * Driver class: Parses DNA sequences from file and creates BTree.
+ * 
  * @author 
+ * 
  */
 public class GeneBankCreateBTree {
 	public static void main (String[] args) throws FileNotFoundException {
@@ -36,7 +39,7 @@ public class GeneBankCreateBTree {
 			printUsage(0);
 		}
 		
-		// Collect cache option and size.
+		// Collect cache option and size, check for validity.
 		//cache = Integer.parseInt(args[0]);	
 		cache = 0;	// XXX: Must set to 0, cache is not yet implemented.
 		if (cache < 0 || cache > 1) {	// TODO: Simplify this?
@@ -76,6 +79,7 @@ public class GeneBankCreateBTree {
 			printUsage(4);
 		}
 		
+		// Collect debug option and check for validity.
 		if (args.length == 6) {
 			debug = Integer.parseInt(args[5]);
 			if (debug < 0 || debug > 1) {
@@ -89,7 +93,7 @@ public class GeneBankCreateBTree {
 		 */
 
 		BTree tree = new BTree(t);
-		scan = new Scanner(gbk);
+		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		
 	
 		/*
@@ -198,7 +202,7 @@ public class GeneBankCreateBTree {
 			
 		}
 	
-		System.err.println("Usage: <cache> <degree> <gbk file> <sequence length> [<cache size>] [<debug level>]");
+		System.err.println("Usage: java GeneBankCreateBTree <cache> <degree> <gbk file> <sequence length> [<cache size>] [<debug level>]");
 		
 		System.exit(1);
 	}

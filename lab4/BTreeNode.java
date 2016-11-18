@@ -7,21 +7,24 @@ import java.util.ArrayList;
  * TODO: Implement removeObject
  * 
  * B-Tree node class.
- * Generic.
  *
  * @author ksilva
- * @param <K> Generic type.
+ * 
  */
-public class BTreeNode<K> {
+public class BTreeNode {
 	
-	private BTreeNode parent;
 	//private ArrayList<BTreeNode> children;
 	//private ArrayList<TreeObject> treeObjects;
-	private BTreeNode[] children;	// XXX: Should use arrays instead of array list to make size fixed.
+	
+	// XXX: Should use arrays instead of array list to make size fixed, 
+	// will need to manually manage number of children and objects now.
+	private BTreeNode[] children;	
 	private TreeObject[] treeObjects;
+	private BTreeNode parent;
 	private int t;
 	private int numObjects;
 	private int numChildren;
+	
 	
 	/**
 	 * Constructor.
@@ -126,18 +129,37 @@ public class BTreeNode<K> {
 	 */
 	public boolean addKey(TreeObject adding) {
 		if (treeObjects.length < t) {
-			int next = 0;
-			
-			for (int i = 0; i < treeObjects.length; i++) {
-				int result = adding.compare(treeObjects[i]);
-				if (result <= 0) {
-					if (result != 0) {
-						treeObjects[i] = adding;
-					} else {
+			//for (int i = 0; i < treeObjects.length; i++) {
+			int i = 0;
+			while (i < treeObjects.length) {
+				int result = adding.compareTo(treeObjects[i]);
+				if (result >= 0) {
+					if (result != 0) {	// If adding is greater than TreeObject at i,
+						if (treeObjects[i + 1] == null) {	// add if spot after i is empty,
+							treeObjects[i + 1] = adding;	
+							
+						} else {	// else, must shift remaining objects.
+							
+							// XXX: This part is probably not right.....
+							
+							TreeObject tmp = treeObjects[i + 1];
+							treeObjects[i + 1] = adding;
+							
+							i++; // advance and check next position
+							
+							while(treeObjects[i + 1] != null) {	// while the position after i is occupied
+								treeObjects[i + 1] = tmp;
+								i++;
+								tmp = treeObjects[i + 1];
+							}
+						}
+						
+					} else {	
 						treeObjects[i].incFrequency();						
 					}
 					return true;
 				} 
+				i++;
 			}
 		}
 		return false;

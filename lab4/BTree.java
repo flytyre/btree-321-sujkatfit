@@ -2,16 +2,18 @@
  * [STATUS] Nowhere near done!
  * TODO: Implement insert method
  * 
- * BTree class
+ * BTree class.
+ * 
  * @author
+ * 
  */
 public class BTree {
 
-	private int degree;
+	private int t;
 	private int uniques;
 	
 	public BTree(int degree) {
-		this.degree = degree;
+		this.t = degree;
 	}
 	
 	/**
@@ -23,8 +25,8 @@ public class BTree {
 		BTreeNode parent = node.getParent();
 	
 		if (parent != null) {
-			if (parent.getNumObjects() < degree) {
-				parent.addKey(node.removeObject(degree-1)); 
+			if (parent.getNumObjects() < t) {
+				parent.addKey(node.removeObject(t-1)); 
 			} 
 		} 
 	}
@@ -37,6 +39,10 @@ public class BTree {
 	
 	public int getUniques() {
 		return uniques;
+	}
+	
+	public int getDegree() {
+		return t;
 	}
 
 	

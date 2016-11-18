@@ -2,7 +2,9 @@
  * [STATUS] Complete?
  * 
  * TreeObject class.
+ * 
  * @author 
+ * 
  */
 public class TreeObject {
 
@@ -41,7 +43,7 @@ public class TreeObject {
 	 * @return -1 If this TreeObject is smaller.
 	 * @return 0 If both TreeObjects are equal.
 	 */
-	public int compare(TreeObject that) {
+	public int compareTo(TreeObject that) {
 		if (this.key > that.getKey()) {
 			return 1;
 		} else if (this.key < that.getKey()) {
