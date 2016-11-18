@@ -1,4 +1,10 @@
-
+/**
+ * [STATUS] Nowhere near done!
+ * TODO: Implement insert method
+ * 
+ * BTree class
+ * @author
+ */
 public class BTree {
 
 	private int degree;

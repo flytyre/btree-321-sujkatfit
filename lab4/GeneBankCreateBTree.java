@@ -1,16 +1,23 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-
+/**
+ * [STATUS] Nearly complete.
+ * TODO: Implement degree generation based on BTreeNode disk size.
+ * 
+ * Driver class.
+ * @author 
+ */
 public class GeneBankCreateBTree {
 	public static void main (String[] args) throws FileNotFoundException {
 		
-		File file = null; // TODO: collect this data from args
-		Scanner fileScan;
+		File gbk;
+		Scanner scan;
 		int k;
-		int t; // TODO: collect this data from args
+		int t; 
 		int cache;
-		String prevLine = "";
+		int cacheSize = 0;
+		int debug = -1;
 		String nextLine = "";
 		String line = "";
 		String dseq = "";
@@ -19,13 +26,33 @@ public class GeneBankCreateBTree {
 		String endflag = "//";
 		String DELIMITER = "[actgn/]*";
 		
+		
+		/*
+		 * Collect user input.
+		 */
+		
 		// Check for invalid number of arguments.
 		if (args.length < 4 || args.length > 6) {
 			printUsage(0);
 		}
 		
-		cache = Integer.parseInt(args[1]);
+		// Collect cache option and size.
+		//cache = Integer.parseInt(args[0]);	
+		cache = 0;	// XXX: Must set to 0, cache is not yet implemented.
+		if (cache < 0 || cache > 1) {	// TODO: Simplify this?
+			printUsage(1);
+		} else if (cache == 1) {
+			if (args.length > 4) {
+				cacheSize = Integer.parseInt(args[4]);	
+				
+				if (cacheSize < 1) {
+					printUsage(5);
+				}
 		
+			} else {
+				printUsage(7);
+			}
+		}
 		
 		// Collect t and check for validity.
 		t = Integer.parseInt(args[1]); 
@@ -34,6 +61,13 @@ public class GeneBankCreateBTree {
 		} else if (t == 0) {
 			// TODO: Generate optimum t based on disk block 
 			// of 4096 and size of BTreeNode on disk. <-- what is this?
+			
+		}
+		
+		// Collect gbk file and check for validity.
+		gbk = new File(args[2]); 
+		if (!gbk.exists()) {
+			printUsage(3);
 		}
 		
 		// Collect k and check for validity.
@@ -41,64 +75,55 @@ public class GeneBankCreateBTree {
 		if (k < 1 || k > 31) {
 			printUsage(4);
 		}
+		
+		if (args.length == 6) {
+			debug = Integer.parseInt(args[5]);
+			if (debug < 0 || debug > 1) {
+				printUsage(6);
+			}
+		}
 	
+		
+		/*
+		 * Instantiate BTree and Scanner.
+		 */
+
 		BTree tree = new BTree(t);
-
-//		try {
-//			fileScan = new Scanner(file);
-//		} catch (FileNotFoundException e) {
-//			System.err.println("The file " + file + " could not be found.");
-//			e.printStackTrace(); // for debugging, remove later
-//			System.exit(1);
-//		}
+		scan = new Scanner(gbk);
 		
-		fileScan = new Scanner(file);
-		
-		// Position the scanners.
-		// Possibly merge this with while loops below?
-		while (fileScan.hasNextLine()) {	
-			line = fileScan.nextLine();
-			
-			if (!line.contains(startflag)) {
-				break;	
-			}				
-		}
 	
-		// Apply delimiter to the scanner.
-		fileScan.useDelimiter(DELIMITER);
-
-		// At this point, scanner is pointing at ORIGIN.
-		// This is one line above the DNA sequences.
-		if (fileScan.hasNextLine()) {
-			nextLine = fileScan.nextLine().toLowerCase();
-		}
+		/*
+		 * Collect and convert sequences, populate BTree.
+		 */
 		
-		// Scanner will always be pointing to the line 
-		// after the one we are currently working on.  
-		// This is necessary for wrapping.
-		while(!nextLine.contains(endflag)) { // continue until all data is read, this may need to be changed.
+		// Scanner will always be pointing to the line after the one 
+		// we are currently working on. This is necessary for wrapping.
+		while(!nextLine.contains(endflag)) {  // Continue until endflag is found -- just after DNA sequences.
+			
+			// Position the scanner.
+			while(!nextLine.contains(startflag)) {	// Continue until startflag is fonud -- just before DNA sequences.
+				nextLine = scan.nextLine();
+			}
+			
+			// Apply delimiter to the scanner.
+			scan.useDelimiter(DELIMITER);
 
 			int start = 0;		// reset cursor
 			line = nextLine;	// advance line
-			nextLine = fileScan.nextLine().toLowerCase();	// grab next line
+			nextLine = scan.nextLine().toLowerCase();	// grab next line
 			
-			// outer while breaks when // is collected as next line
-			// meaning line is the last line of dna sequences
-			// holy crap my head hurts
-			
+			// Collect DNA sequence.
 			while (start < line.length()) {
 			
 				int end = start + k;
 				
-				// If the sequence collected fits on the current line.
-				if (end < line.length()) {
+				if (end < line.length()) {	// If the sequence to be collected fits on the current line...
 				
 					for (int i = start; i < end; i++) {
 						dseq += line.charAt(i);	
 					}
 					
-				// If we have to wrap to the next line to finish the sequence.
-				} else {
+				} else {	// else, we have to wrap to the next line to finish the sequence.
 					
 					end = k - (nextLine.length() - start);
 					
@@ -112,7 +137,7 @@ public class GeneBankCreateBTree {
 				}
 				
 				// Convert the collected DNA sequence to binary.
-				if (dseq.length() == k) {	// discard any sequences < k
+				if (dseq.length() == k) {	// Discard any sequences != k in length.
 					for (int i = 0; i < dseq.length(); i++) {
 						char c = dseq.charAt(i);
 				
@@ -121,12 +146,15 @@ public class GeneBankCreateBTree {
 							case ('c'): bseq += "01";
 							case ('g'): bseq += "10";
 							case ('t'): bseq += "11";	
+							case ('n'): bseq = "";	// Unreadable DNA, discard entire sequence.
 						}		
 					}
 				
-					// Add the binary sequence to the tree.
-					TreeObject obj = new TreeObject(Long.parseLong(bseq));
-					tree.insert(obj);
+					// Add the binary sequence to the tree, ignore sequences of inappropriate length.
+					if (bseq.length() == k * 2) {
+						TreeObject obj = new TreeObject(Long.parseLong(bseq));
+						tree.insert(obj);
+					}
 				}
 				
 				start++;	// advance cursor
@@ -135,22 +163,42 @@ public class GeneBankCreateBTree {
 				
 			}			
 		}
+		
+		scan.close();
 	}
 		
 	
+	/**
+	 * printUsage
+	 * @param code The specific error that resulted in calling printUsage
+	 */
 	static void printUsage(int code) {
+		// TODO: Improve language.
 		switch (code) {
-		case (0):	System.err.println("Invalid number of arguments.");
-		// case 1: the cache option is invalid
-		// case 2: the degree given is invalid
-		// case 3: the gbk file does not exist
-		case (4):	System.err.println("Invalid sequence length");
-		
-		
+			case (0):	System.err.println("Invalid number of arguments.");
+			
+			case (1):	System.err.println("Invalid cache option.");
+						System.err.println("Must use either 0 for no cache or 1 for cache.");
+						
+			case (2): 	System.err.println("Invalid degree.");
+						System.err.println("Must be > 1, or use 0 for optimized degree.");
+						
+			case (3): 	System.err.println("The given gbk file does not exist.");
+			
+			case (4):	System.err.println("Invalid sequence length.");
+						System.err.println("Must be in the range [1, 31].");
+						
+			case (5):	System.err.println("Invalid cache size.");
+						System.err.println("Must be > 0.");	// XXX: is this correct?
+			
+			case (6): 	System.err.println("Invalid debug option.");
+						System.err.println("Must use either 0 to print to standard error or 1 to print to file.");
+				
+			case (7): 	System.err.println("No cache size given.");
+			
 		}
-		
-		
-		// print usage here
+	
+		System.err.println("Usage: <cache> <degree> <gbk file> <sequence length> [<cache size>] [<debug level>]");
 		
 		System.exit(1);
 	}

@@ -1,30 +1,45 @@
 import java.util.ArrayList;
 
 /**
+ * [STATUS] About halfway done.
+ * TODO: Figure out where to adjust numChildren
+ * TODO: Adjust addObject to work with array (need to add shifting)
+ * TODO: Implement removeObject
+ * 
  * B-Tree node class.
  * Generic.
+ *
  * @author ksilva
  * @param <K> Generic type.
  */
 public class BTreeNode<K> {
 	
 	private BTreeNode parent;
-	private ArrayList<BTreeNode> children;
-	private ArrayList<TreeObject> treeObjects;
-	private int degree;
+	//private ArrayList<BTreeNode> children;
+	//private ArrayList<TreeObject> treeObjects;
+	private BTreeNode[] children;	// XXX: Should use arrays instead of array list to make size fixed.
+	private TreeObject[] treeObjects;
+	private int t;
+	private int numObjects;
+	private int numChildren;
 	
 	/**
 	 * Constructor.
 	 * @param key The generic type object to store in this node.
 	 */
 	public BTreeNode(int degree) {
+		
+		t = degree;
+		
 		parent = null;
+		children = new BTreeNode[t];
+		treeObjects = new TreeObject[(2 * t) - 1];
+		
+		numObjects = 0;
+		numChildren = 0;
+		//children = new ArrayList<BTreeNode>();
+		//treeObjects = new ArrayList<TreeObject>();
 
-		children = new ArrayList<BTreeNode>();
-		
-		this.degree = degree;
-		treeObjects = new ArrayList<TreeObject>();
-		
 	}
 	
 	
@@ -53,8 +68,8 @@ public class BTreeNode<K> {
 	 * @param left The new left child of this node.
 	 */
 	public void setChild(int index, BTreeNode child) {
-		if (index >= 0 && index < treeObjects.size()) {
-			children.set(index, child);
+		if (index >= 0 && index < treeObjects.length) {
+			children[index] = child;
 		}
 	}
 
@@ -64,8 +79,8 @@ public class BTreeNode<K> {
 	 * @return left The child node at the given index.
 	 */
 	public BTreeNode getChild(int index) {
-		if (index >= 0 && index < treeObjects.size()) {
-			return children.get(index);
+		if (index >= 0 && index < treeObjects.length) {
+			return children[index];
 		}
 		return null;
 	}
@@ -77,8 +92,8 @@ public class BTreeNode<K> {
 	 * @return keys.get(index) The key at the given index.
 	 */
 	public TreeObject getObject(int index) {
-		if (index >= 0 && index < treeObjects.size()) {
-			return treeObjects.get(index);
+		if (index >= 0 && index < treeObjects.length) {
+			return treeObjects[index];
 		}
 		return null;	
 	}
@@ -90,15 +105,17 @@ public class BTreeNode<K> {
 	 * @return keys.get(index) The key at the given index.
 	 */
 	public TreeObject removeObject(int index) {
-		if (index >= 0 && index < treeObjects.size()) {
-			return treeObjects.remove(index);
+		if (index >= 0 && index < treeObjects.length) {
+			TreeObject removed = treeObjects[index];
+			// TODO: Remove entry and shift keys (TreeObjects)
+			return removed;
 		}
 		return null;	
 	}
 	
 	
 	public int getNumObjects() {
-		return treeObjects.size();
+		return numObjects;
 	}
 
 	
@@ -108,16 +125,16 @@ public class BTreeNode<K> {
 	 * @return
 	 */
 	public boolean addKey(TreeObject adding) {
-		if (treeObjects.size() < degree) {
+		if (treeObjects.length < t) {
 			int next = 0;
 			
-			for (int i = 0; i < treeObjects.size(); i++) {
-				int result = adding.compare(treeObjects.get(i));
+			for (int i = 0; i < treeObjects.length; i++) {
+				int result = adding.compare(treeObjects[i]);
 				if (result <= 0) {
 					if (result != 0) {
-						treeObjects.add(i, adding);
+						treeObjects[i] = adding;
 					} else {
-						treeObjects.get(i).incFrequency();						
+						treeObjects[i].incFrequency();						
 					}
 					return true;
 				} 
@@ -131,7 +148,7 @@ public class BTreeNode<K> {
 	 * Returns whether or not this node is a leaf.
 	 */
 	public boolean isLeaf() {
-		if (children.size() == 0) {
+		if (numChildren == 0) {
 			return true;
 		}
 		return false;

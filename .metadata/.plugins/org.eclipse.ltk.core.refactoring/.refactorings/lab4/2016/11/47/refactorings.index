@@ -5,3 +5,4 @@
 1479269459086	Rename method 'getNumKeys'
 1479269477720	Rename field 'keys'
 1479273145582	Rename field 'reading'
+1479499938719	Rename local variable 'fileScan'
