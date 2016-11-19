@@ -44,6 +44,8 @@ public class BTree {
 	public int getDegree() {
 		return t;
 	}
+	
+	// XXX: do we need a search method here?
 
 	
 	

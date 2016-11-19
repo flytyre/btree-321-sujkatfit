@@ -9,3 +9,8 @@
 1479502402258	Rename method 'compare'
 1479505367638	Rename local variable 'i'
 1479505444776	Rename local variable 'index'
+1479513017870	Rename local variable 'stop'
+1479513021885	Rename local variable 'start'
+1479513025899	Rename local variable 'sop'
+1479513866286	Rename local variable 'sequence'
+1479513924377	Rename local variable 'seq'

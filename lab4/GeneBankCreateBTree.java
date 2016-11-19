@@ -163,8 +163,7 @@ public class GeneBankCreateBTree {
 				
 				start++;	// advance cursor
 				dseq = "";	// clear sequences
-				bseq = ""; 
-				
+				bseq = ""; 	
 			}			
 		}
 		
@@ -180,26 +179,33 @@ public class GeneBankCreateBTree {
 		// TODO: Improve language.
 		switch (code) {
 			case (0):	System.err.println("Invalid number of arguments.");
-			
+						break;
+						
 			case (1):	System.err.println("Invalid cache option.");
 						System.err.println("Must use either 0 for no cache or 1 for cache.");
+						break;
 						
 			case (2): 	System.err.println("Invalid degree.");
 						System.err.println("Must be > 1, or use 0 for optimized degree.");
-						
+						break;
+				
 			case (3): 	System.err.println("The given gbk file does not exist.");
+						break;
 			
 			case (4):	System.err.println("Invalid sequence length.");
 						System.err.println("Must be in the range [1, 31].");
+						break;
 						
 			case (5):	System.err.println("Invalid cache size.");
 						System.err.println("Must be > 0.");	// XXX: is this correct?
-			
+						break;
+						
 			case (6): 	System.err.println("Invalid debug option.");
 						System.err.println("Must use either 0 to print to standard error or 1 to print to file.");
-				
+						break;
+						
 			case (7): 	System.err.println("No cache size given.");
-			
+						break;
 		}
 	
 		System.err.println("Usage: java GeneBankCreateBTree <cache> <degree> <gbk file> <sequence length> [<cache size>] [<debug level>]");
