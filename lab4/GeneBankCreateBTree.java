@@ -31,7 +31,7 @@ public class GeneBankCreateBTree {
 		
 		
 		/*
-		 * Collect user input.
+		 * Collect user input../
 		 */
 		
 		// Check for invalid number of arguments.

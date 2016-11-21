@@ -3,12 +3,12 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * [STATUS] Nowhere near done!
+ * [STATUS] Less than halfway done.
  * TODO: Modify printUsage.
  * TODO: Implement debugging.
  * TODO: Implement search (??????).
  * 
- * Driver class: Searches a given BTree using a given query file.
+ * Driver class: Searches given BTree using given query file.
  * 
  * @author 
  *
