@@ -12,12 +12,14 @@ public class BTree {
 
 	private int t;
 	private int uniques;
+	private BTreeNode root;
 
 	/**
 	 * Constructor.
 	 */
 	public BTree(int degree) {
 		this.t = degree;
+		root = new BTreeNode(t);
 	}
 
 	
@@ -39,11 +41,29 @@ public class BTree {
 
 	
 	/**
-	 * 
+	 * Non-recursive, may change to recursive later
+	 * may use int codes instead of boolean
+	 * if returns false, objects in tree must be shifted
 	 * @param t
 	 */
-	public void insert(TreeObject obj) {
-
+	public boolean insert(TreeObject obj) {
+		if (!root.isFull()) {	// if there is space in the root
+			root.addObject(obj);
+		}
+		
+		int result;
+		
+		// if there was no space, must find where to add this object
+		for (int i = 0; i < root.getNumObjects(); i++) {
+			result = obj.compareTo(root.getObject(i));
+			
+			if 
+			
+			
+		}
+		
+		return false;
+		
 		// XXX: this does nothing right now
 		
 	}
@@ -76,8 +96,7 @@ public class BTree {
 
 	/**
 	 * [STATUS] More than halfway done.
-	 * TODO: Figure out where to adjust numChildren
-	 * TODO: Fix setChild, need to implement shifting.... or does this happen in tree...?
+	 * TODO: Figure out child assignment
 	 * 
 	 * B-Tree node class.
 	 * Inner class.
@@ -148,11 +167,11 @@ public class BTree {
 		/**
 		 * Sets the given node as this node's child at the give index.
 		 * Allows setting to null.
+		 * XXX: this might not be needed... replace with add/removeChild?
 		 * @param 
 		 */
 		private void setChild(int index, BTreeNode child) {
-			if (index >= 0 && index < objects.length) {
-				// XXX: this is missing a lot of logic...
+			if (index >= 0 && index < children.length) {
 				children[index] = child;
 			}
 		}
@@ -173,6 +192,7 @@ public class BTree {
 
 		/**
 		 * Returns the number of children this node has.
+		 * @return numChildren The number of children this node has.                                                                                             
 		 */
 		private int getNumChildren() {
 			return numChildren;
@@ -227,9 +247,10 @@ public class BTree {
 		 * @param adding The object being added. XXX: should probably rename this variable
 		 * @return 
 		 * XXX: May change to use int codes instead of a boolean...
+		 * XXX: this method is kind of messed up right now...
 		 */
 		private boolean addObject(TreeObject adding) {
-			if (numObjects == (2 * t) - 1) {
+			if (this.isFull()) {
 				return false; // this node is full
 			}
 
@@ -237,7 +258,7 @@ public class BTree {
 
 			while (i < objects.length) { // XXX: is this right?
 				int result = adding.compareTo(objects[i]);
-				if (result >= 0) { // if adding is greater than or equal to object at i 
+				if (result <= 0) { // if adding is less than or equal to object at i 
 					if (result != 0) {	// and if adding is not equal to object at i
 						if (objects[i + 1] == null) {	// add if spot after i is empty,
 							objects[i + 1] = adding;	
@@ -282,6 +303,15 @@ public class BTree {
 		 */
 		private int getNumObjects() {
 			return numObjects;
+		}
+		
+		
+		/**
+		 * Returns whether or not this node is full.
+		 * @return
+		 */
+		private boolean isFull() {
+			return (numObjects < objects.length);
 		}
 
 

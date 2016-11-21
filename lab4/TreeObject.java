@@ -42,8 +42,13 @@ public class TreeObject {
 	 * @return 1 If this TreeObject is larger.
 	 * @return -1 If this TreeObject is smaller.
 	 * @return 0 If both TreeObjects are equal.
+	 * XXX: need to handle if that was null!!
 	 */
 	public int compareTo(TreeObject that) {
+		if (that == null) {
+			return -1;
+		}
+		
 		if (this.key > that.getKey()) {
 			return 1;
 		} else if (this.key < that.getKey()) {

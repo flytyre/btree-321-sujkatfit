@@ -1,0 +1,54 @@
+inserting n
+
+c x y z
+_ _ _ _ _ _
+ 
+i
+
+i is position just before n should be inserted
+but position after i is full
+so we must shift elements
+
+...
+
+
+advance the cursor
+store x in temp
+set list[i] = n
+
+c n y z 
+_ _ _ _ _ _ 
+  i 
+  
+  
+advance cursor to first empty space
+
+c n y z
+_ _ _ _ _ _
+        i
+		
+walk backwards, shifting elements forward
+set list[i] = list[i - 1]
+do this until i - 1 points to added value (n)
+
+c n y z z
+_ _ _ _ _ _
+	  i
+	  
+c n y y z
+_ _ _ _ _ _ 
+    i
+	
+now, to finish, set list[i] to temp
+c n x y z 
+_ _ _ _ _ _ 
+    i
+	
+	
+	
+ith child of a node has the following properties
+- the last object in the ith child is < the ith object in the parent
+- the first object in the ith chlid is > the i-1th object in the parent
+
+ 
+ 
