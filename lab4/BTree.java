@@ -1,6 +1,12 @@
+
+import java.util.Stack;
+
 /**
- * [STATUS] Nowhere near done!
- * TODO: Implement insert method
+ * [STATUS] Getting somewhere...
+ * TODO: Implement checkBalance
+ * TODO: Implement shift
+ * TODO: Implement remove
+ * 
  * 
  * BTree class.
  * Contains BTreeNode inner class.
@@ -13,86 +19,214 @@ public class BTree {
 	private int t;
 	private int uniques;
 	private BTreeNode root;
+	private Stack s;
 
+	
 	/**
 	 * Constructor.
 	 */
 	public BTree(int degree) {
 		this.t = degree;
-		root = new BTreeNode(t);
+		root = new BTreeNode();
+		s = new Stack();
 	}
-
+	
 	
 	/**
-	 * This method is a nightmare.
-	 * Adjusts node locations when inserting. 
-	 * ew
-	 * @param node
+	 * Not finished, check pseudocode for accuracy
+	 * Search method.
+	 * Recursive.
+	 * No idea what it should return
 	 */
-	public void move(BTreeNode node) {
-		BTreeNode parent = node.getParent();
-
-		if (parent != null) {
-			if (parent.getNumObjects() < t) {
-				parent.addObject(node.removeObject(t-1)); 
-			} 
-		} 
+	public BTreeNode search(BTreeNode node, long query) {
+		int result = node.isInRange(query);
+		
+		if (result < 0) {
+			search(node.children[0], query);
+		}
+		
+		else if (result > 0) {
+			search(node.children[node.numKeys], query);
+		}
+		
+		else {
+			for(int i = 0; i < node.numKeys; i++) {
+				if (query < node.keys[i].getKey()) {
+					search(node.children[i], query);
+				}
+			}
+		}
+		
+		// TODO: Store and return what exactly??
+		
+		return null;
 	}
-
+	
 	
 	/**
-	 * Non-recursive, may change to recursive later
-	 * may use int codes instead of boolean
-	 * if returns false, objects in tree must be shifted
-	 * @param t
+	 * Inserts a value in the appropriate place in the tree.
+	 * Recursive.
+	 * @param node The node to attempt insertion at.
+	 * @param key The key to insert in the tree.
 	 */
-	public boolean insert(TreeObject obj) {
-		if (!root.isFull()) {	// if there is space in the root
-			root.addObject(obj);
+	public void insert(BTreeNode node, TreeObject key) {
+		
+		if (node.isLeaf()) {
+			if (node.isFull()) {
+				split(node);
+				insert(node, key);
+			} else {
+				node.insertKey(key);
+			}
+		}
+
+		int result = node.isInRange(key.getKey());
+		
+		if (result < 0) {
+			insert(node.children[0], key);
 		}
 		
-		int result;
-		
-		// if there was no space, must find where to add this object
-		for (int i = 0; i < root.getNumObjects(); i++) {
-			result = obj.compareTo(root.getObject(i));
-			
-			if 
-			
-			
+		else if (result > 0) {
+			insert(node.children[node.numKeys], key);
 		}
 		
-		return false;
+		else {
+			for(int i = 0; i < node.numKeys; i++) {
+				if (key.compareTo(node.keys[i]) < 0) {
+					insert(node.children[i], key);
+				}
+			}
+		}
 		
-		// XXX: this does nothing right now
+		// TODO: need to actually call insertion on node once location is found
+		
+		checkBalance();
+	}
+	
+	
+	/**
+	 * Remove
+	 * @param key
+	 */
+	public void remove(long key) {
+		
+		checkBalance();
+	}
+	
+	
+	/**
+	 * Checks for and corrects imbalance.
+	 */
+	public void checkBalance() {
+		
+		// compare heights to ensure tree is even
+		// correct balance if needed
+		// shift up if room in parent
+		// down if no room
 		
 	}
-
+	
+	
 	/**
 	 * 
+	 * @param node
+	 */
+	public void shift(BTreeNode node) {
+		if (node.parent.isFull()) {
+			// shift down
+		} else {
+			// shift up
+		}
+	}
+
+
+	/**
+	 * Splits a node into a tree with three nodes and two leaves.
+	 * The middle element becomes the new root.
+	 * The leftmost elements are the left child.
+	 * The rightmost elements are the right child.
+	 * Not recursive.
+	 * @param node The node to be split.
+	 */
+	public void split(BTreeNode node) {
+		if (!node.isFull()) {
+			System.err.println("Attempted to split a non-full node -- this shouldn't happen!  Check insert in BTree.");
+			return;
+		}
+		
+		if (!node.isLeaf()) {
+			System.err.println("Attempted to split a non-leaf node -- this shouldn't happen!  Check insert in BTree.");
+			return;
+		}
+		
+		int middle = (int) Math.floor((double) node.numKeys / 2);
+		int numKeys = node.numKeys;
+		node.children[0] = new BTreeNode();
+		node.children[0].parent = node;
+		
+		for (int i = 0; i < middle; i++) {
+			node.children[0].insertKey(node.removeObject(i));
+		}
+
+		node.children[1] = new BTreeNode();
+		node.children[1].parent = node;
+		
+		for (int i = middle + 1; i < numKeys; i++) {
+			node.children[numKeys].insertKey(node.removeObject(i));
+		}	
+	}
+
+	
+	/**
+	 * Height
+	 * uhhh this is just wrong, check pseudocode
+	 * how to do this with > 2 children?
+	 * @param node
 	 * @return
+	 */
+	public int height(BTreeNode node) {
+		if (node == null) {
+			return 0;
+		}
+		
+		if (node.isLeaf()) {
+			return 1;
+		}
+		
+		int max = 1;
+		s.push(node);
+		
+		while (!s.isEmpty()) {
+			BTreeNode current = (BTreeNode) s.pop();
+			for (int i = 0; i < node.numChildren; i++) {
+				s.push(current.children[i]);
+			}
+			
+		}
+		
+		return max;
+	}
+
+		
+	/**
+	 * Returns the number of unique keys in this BTree.
+	 * @return uniques The number of unique keys in this BTree.
 	 */
 	public int getUniques() {
 		return uniques;
 	}
 
+	
 	/**
-	 * 
-	 * @return
+	 * Returns the degree of this BTree.
+	 * @return t The degree of this BTree.
 	 */
 	public int getDegree() {
 		return t;
 	}
 
-	
-	/** 
-	 * 
-	 */
-	public void search() {
-		
-		
-	}
 
+	
 
 	/**
 	 * [STATUS] More than halfway done.
@@ -106,29 +240,24 @@ public class BTree {
 	 */
 	private class BTreeNode {
 
-		// XXX: Should use arrays instead of array list to make size fixed, 
-		// will need to manually manage number of children and objects now.
 		private BTreeNode[] children;	
-		private TreeObject[] objects;
+		private TreeObject[] keys;
 		private BTreeNode parent;
-		private int t;
-		private int numObjects;
+		private int numKeys;
 		private int numChildren;
 
-
+		
 		/**
 		 * Constructor.
 		 * @param key The generic type object to store in this node.
 		 */
-		private BTreeNode(int degree) {
-
-			t = degree;
+		private BTreeNode() {
 
 			parent = null;
 			children = new BTreeNode[2 * t];
-			objects = new TreeObject[(2 * t) - 1];
+			keys = new TreeObject[(2 * t) - 1];
 
-			numObjects = 0;
+			numKeys = 0;
 			numChildren = 0;
 
 		}
@@ -146,60 +275,6 @@ public class BTree {
 
 
 		/**
-		 * Sets the given node as this node's parent.
-		 * Allows setting to null.
-		 * @param parent The new parent of this node.
-		 */
-		private void setParent(BTreeNode parent) {
-			this.parent = parent;
-		}
-
-
-		/**
-		 * Returns this node's parent.
-		 * @return parent The parent of this node.
-		 */
-		private BTreeNode getParent() {
-			return parent;
-		}
-
-
-		/**
-		 * Sets the given node as this node's child at the give index.
-		 * Allows setting to null.
-		 * XXX: this might not be needed... replace with add/removeChild?
-		 * @param 
-		 */
-		private void setChild(int index, BTreeNode child) {
-			if (index >= 0 && index < children.length) {
-				children[index] = child;
-			}
-		}
-
-
-		/**
-		 * Returns the child node at the given index.
-		 * @return children[index] The child node at the given index.
-		 * @return null If the given index was out of range.
-		 */
-		private BTreeNode getChild(int index) {
-			if (index >= 0 && index < numChildren) {
-				return children[index];
-			}
-			return null;
-		}
-
-
-		/**
-		 * Returns the number of children this node has.
-		 * @return numChildren The number of children this node has.                                                                                             
-		 */
-		private int getNumChildren() {
-			return numChildren;
-		}
-
-
-		/**
 		 * Removes the given object.
 		 * XXX: DO NOT DECREMENT NUMOBJECTS HERE -- it is handled in removeObject(int)
 		 * @param removed The object to remove.
@@ -207,8 +282,8 @@ public class BTree {
 		 * @return null If the given object is not in this node.
 		 */
 		private TreeObject removeObject(TreeObject removed) {
-			for (int i = 0; i < numObjects; i++) {
-				if (objects[i] == removed) {
+			for (int i = 0; i < numKeys; i++) {
+				if (keys[i] == removed) {
 					return removeObject(i);
 				}
 			}
@@ -223,77 +298,73 @@ public class BTree {
 		 * @return null If the given index was out of range.
 		 */
 		private TreeObject removeObject(int index) {
-			if (index < 0 || index >= numObjects) {
+			if (index < 0 || index >= numKeys) {
 				return null;
 			}
 
-			TreeObject removed = objects[index]; // store object to remove 
+			TreeObject removed = keys[index]; // store object to remove 
 
 			int i = index;
 
-			while (objects[i + 1] != null) {
-				objects[i] = objects[i + 1];
+			while (keys[i + 1] != null) {
+				keys[i] = keys[i + 1];
 				i++;
 			}
 
-			numObjects--;
+			numKeys--;
 			return removed;
-
 		}
 
 
 		/**
 		 * Adds an object to this node.
-		 * @param adding The object being added. XXX: should probably rename this variable
+		 * @param addThis The object being added.
 		 * @return 
 		 * XXX: May change to use int codes instead of a boolean...
-		 * XXX: this method is kind of messed up right now...
 		 */
-		private boolean addObject(TreeObject adding) {
+		private void insertKey(TreeObject addThis) {
+			// Case 1: Node is full [Failure]
 			if (this.isFull()) {
-				return false; // this node is full
+				System.err.println("Attempted to add key to full node -- this shouldn't happen!  Check insert in BTree.");
+				return; // this node is full
 			}
 
-			int i = 0; // initialize cursor
-
-			while (i < objects.length) { // XXX: is this right?
-				int result = adding.compareTo(objects[i]);
-				if (result <= 0) { // if adding is less than or equal to object at i 
-					if (result != 0) {	// and if adding is not equal to object at i
-						if (objects[i + 1] == null) {	// add if spot after i is empty,
-							objects[i + 1] = adding;	
-							numObjects++;
-							return true;
-
-						} else {	// else, must shift remaining objects forward.
-
-							i++; // advance cursor, now pointing to index for insertion
-
-							TreeObject tmp = objects[i]; // store object at i in tmp, we will place this back after shifting
-							objects[i] = adding;	// insert adding at i
-
-							i = numObjects; // i is now pointing at first empty index
-
-							while(objects[i - 1] != adding) {	// while the object behind i is not the object we just added
-								objects[i] = objects[i - 1]; // shift objects forward
-								i--; // walk backwards
-							}
-
-							// at this point, i is pointing at the index just after adding
-							// put tmp back in this spot, done!
-							objects[i] = tmp;
-							return true;
+			//TreeObject addThis = new TreeObject(key);	
+			
+			// Case 2: Node is empty [Success]
+			if (this.isEmpty()) {
+				keys[numKeys] = addThis;
+				numKeys++;
+				return;
+			} 
+			
+			int i = numKeys - 1;	// initialize cursor
+			
+			// Case 3: Node has room [Success]
+			while (i > 0) {		
+				int result = addThis.compareTo(keys[i]);
+				
+				if (result >= 0) { 		// if addThis is greater than or equal to object at i
+					if (result != 0) {	// if addThis is not equal to object at i
+	
+						int stop = i;	// store this position in stop
+						i = numKeys;	// i is now pointing at first empty index
+						
+						while(i > stop) {	// while the object behind i is not the object we just added
+							keys[i] = keys[i - 1]; // shift objects forward
+							i--; // walk backwards
 						}
+					
+						keys[i] = addThis;
+						return;
 
 					} else {	
-						objects[i].incFrequency();	// object already in this node - do not insert or inc numobjects (do we even need to inc frequency?)
-						return true;
+						keys[i].incFrequency();	// object already in this node - do not insert or inc numobjects (do we even need to inc frequency?)
+						return;
 					}
 				} 
-				i++; // advance cursor if adding is less than treeObject at i
-			}
-
-			return false; // failed to insert (will this ever happen if the node wasn't full...?)
+				i--;
+			}	
 		}
 
 
@@ -302,7 +373,7 @@ public class BTree {
 		 * @return numObjects The number of objects stored in this node.
 		 */
 		private int getNumObjects() {
-			return numObjects;
+			return numKeys;
 		}
 		
 		
@@ -311,9 +382,54 @@ public class BTree {
 		 * @return
 		 */
 		private boolean isFull() {
-			return (numObjects < objects.length);
+			return (numKeys < keys.length);
 		}
 
+		
+		/**
+		 * Returns whether or not this node is full.
+		 * @return
+		 */
+		private boolean isEmpty() {
+			return (numKeys == 0);
+		}
+		
+		
+		/**
+		 * 
+		 * @return
+		 */
+		private int isInRange(long key) {
+			if (this.keys[0].getKey() > key) {
+				return -1; // go left
+			}
+			
+			if (this.keys[numKeys-1].getKey() < key) {
+				return 1; // go right
+			}
+			
+			return 0;
+		}
+		
+		
+		/**
+		 * Returns whether or not the given key is already in the node
+		 * @return
+		 */
+		private int contains(long key) {
+			int result = isInRange(key);
+			if (result == 0) {
+				for (int i = 0; i < numKeys; i++) {
+					if (keys[i].getKey() == key) {
+						return i;
+					}
+				}
+			}
+			
+			return -1;
+		}
+		
+		
 
 		/**
 		 * Returns the object at the given index.
@@ -322,8 +438,8 @@ public class BTree {
 		 * @return null If the given index was out of range.
 		 */
 		private TreeObject getObject(int index) {
-			if (index >= 0 && index < numObjects) {
-				return objects[index];
+			if (index >= 0 && index < numKeys) {
+				return keys[index];
 			}
 			return null;	
 		}
