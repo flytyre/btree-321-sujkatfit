@@ -1,5 +1,7 @@
 
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
+
 
 /**
  * [STATUS] Getting somewhere...
@@ -19,7 +21,6 @@ public class BTree {
 	private int t;
 	private int uniques;
 	private BTreeNode root;
-	private Stack s;
 
 	
 	/**
@@ -28,12 +29,11 @@ public class BTree {
 	public BTree(int degree) {
 		this.t = degree;
 		root = new BTreeNode();
-		s = new Stack();
 	}
 	
 	
 	/**
-	 * Not finished, check pseudocode for accuracy
+	 * Not finished, check pseudocode for accuracy.
 	 * Search method.
 	 * Recursive.
 	 * No idea what it should return
@@ -57,9 +57,7 @@ public class BTree {
 			}
 		}
 		
-		// TODO: Store and return what exactly??
-		
-		return null;
+		return null; // what am I supposed to return?
 	}
 	
 	
@@ -97,9 +95,7 @@ public class BTree {
 				}
 			}
 		}
-		
-		// TODO: need to actually call insertion on node once location is found
-		
+			
 		checkBalance();
 	}
 	
@@ -109,6 +105,7 @@ public class BTree {
 	 * @param key
 	 */
 	public void remove(long key) {
+		
 		
 		checkBalance();
 	}
@@ -131,11 +128,26 @@ public class BTree {
 	 * 
 	 * @param node
 	 */
-	public void shift(BTreeNode node) {
+	public void shiftKeys(BTreeNode node) {
+		/////////////////
+		// Shift down //
+		///////////////
 		if (node.parent.isFull()) {
 			// shift down
+			// root or parent will become a one key node
+			// left and right children are shifted down as needed
+			// this is missing some logic
+			
+		///////////////
+		// Shift up //
+		/////////////
 		} else {
 			// shift up
+			// root or parent will absorb the middle key in the node being shifted
+			// half of elements stay in shifted node
+			// other half become a new child 
+			// this may be missing logic
+			
 		}
 	}
 
@@ -179,32 +191,28 @@ public class BTree {
 	
 	/**
 	 * Height
-	 * uhhh this is just wrong, check pseudocode
-	 * how to do this with > 2 children?
+	 * Really hard to do recursively...
 	 * @param node
 	 * @return
 	 */
-	public int height(BTreeNode node) {
+	public int[] leafDepths(BTreeNode node) {
 		if (node == null) {
-			return 0;
+			return null;
 		}
-		
-		if (node.isLeaf()) {
-			return 1;
-		}
+
+		Queue<BTreeNode> q = new LinkedList<BTreeNode>();
 		
 		int max = 1;
-		s.push(node);
+		q.add(node);
 		
-		while (!s.isEmpty()) {
-			BTreeNode current = (BTreeNode) s.pop();
+		while (!q.isEmpty()) {
+			BTreeNode current = q.poll();
 			for (int i = 0; i < node.numChildren; i++) {
-				s.push(current.children[i]);
+				q.add(current.children[i]);
 			}
-			
 		}
 		
-		return max;
+		return null;
 	}
 
 		
@@ -282,12 +290,7 @@ public class BTree {
 		 * @return null If the given object is not in this node.
 		 */
 		private TreeObject removeObject(TreeObject removed) {
-			for (int i = 0; i < numKeys; i++) {
-				if (keys[i] == removed) {
-					return removeObject(i);
-				}
-			}
-			return null; 
+			return removeObject(contains(removed.getKey())); 
 		}
 
 
@@ -319,8 +322,6 @@ public class BTree {
 		/**
 		 * Adds an object to this node.
 		 * @param addThis The object being added.
-		 * @return 
-		 * XXX: May change to use int codes instead of a boolean...
 		 */
 		private void insertKey(TreeObject addThis) {
 			// Case 1: Node is full [Failure]
