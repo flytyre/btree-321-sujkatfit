@@ -62,6 +62,15 @@ public class BTree {
 	
 	
 	/**
+	 * Start recursion.
+	 * @param key
+	 */
+	public void insert(TreeObject key) {
+		insert (root, key);	
+	}
+	
+	
+	/**
 	 * Inserts a value in the appropriate place in the tree.
 	 * Recursive.
 	 * @param node The node to attempt insertion at.
@@ -153,7 +162,7 @@ public class BTree {
 
 
 	/**
-	 * Splits a node into a tree with three nodes and two leaves.
+	 * Splits a node into a subtree with three nodes and two leaves.
 	 * The middle element becomes the new root.
 	 * The leftmost elements are the left child.
 	 * The rightmost elements are the right child.
