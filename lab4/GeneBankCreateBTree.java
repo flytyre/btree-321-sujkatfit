@@ -92,7 +92,7 @@ public class GeneBankCreateBTree {
 		 * Instantiate BTree and Scanner.
 		 */
 
-		BTree tree = new BTree(t);
+		BTreeKaty tree = new BTreeKaty(t);
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		
 	

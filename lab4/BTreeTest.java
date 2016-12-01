@@ -13,7 +13,7 @@ public class BTreeTest
 
    public static void main(String[] args)
    {
-	   BTree newtree = new BTree(degree) ;
+	   BTreeKaty newtree = new BTreeKaty(degree) ;
 	  /* for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
 	   {
 		   newtree.treeInsertKey(i*10);  

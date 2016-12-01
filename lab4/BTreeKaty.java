@@ -16,7 +16,7 @@ import java.util.Queue;
  * @author
  * 
  */
-public class BTree {
+public class BTreeKaty {
 
 	private int t;
 	private int uniques;
@@ -26,7 +26,7 @@ public class BTree {
 	/**
 	 * Constructor.
 	 */
-	public BTree(int degree) {
+	public BTreeKaty(int degree) {
 		this.t = degree;
 		root = new BTreeNode();
 	}
@@ -105,8 +105,6 @@ public class BTree {
 	 * @param key
 	 */
 	public void remove(long key) {
-		
-		
 		checkBalance();
 	}
 	
@@ -129,26 +127,7 @@ public class BTree {
 	 * @param node
 	 */
 	public void shiftKeys(BTreeNode node) {
-		/////////////////
-		// Shift down //
-		///////////////
-		if (node.parent.isFull()) {
-			// shift down
-			// root or parent will become a one key node
-			// left and right children are shifted down as needed
-			// this is missing some logic
-			
-		///////////////
-		// Shift up //
-		/////////////
-		} else {
-			// shift up
-			// root or parent will absorb the middle key in the node being shifted
-			// half of elements stay in shifted node
-			// other half become a new child 
-			// this may be missing logic
-			
-		}
+
 	}
 
 
