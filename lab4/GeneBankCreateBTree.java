@@ -31,7 +31,7 @@ public class GeneBankCreateBTree {
 		
 		
 		/*
-		 * Collect user input../
+		 * Collect user input...
 		 */
 		
 		// Check for invalid number of arguments.
@@ -40,7 +40,7 @@ public class GeneBankCreateBTree {
 		}
 		
 		// Collect cache option and size, check for validity.
-		//cache = Integer.parseInt(args[0]);	
+		cache = Integer.parseInt(args[0]);	
 		cache = 0;	// XXX: Must set to 0, cache is not yet implemented.
 		if (cache < 0 || cache > 1) {	// TODO: Simplify this?
 			printUsage(1);
