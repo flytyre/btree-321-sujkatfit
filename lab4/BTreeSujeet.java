@@ -10,7 +10,7 @@ import java.util.Queue;
  * @author user1
  *
  */
-public class BTree 
+public class BTreeSujeet
 {
 
 	public final int degree ;
@@ -24,7 +24,7 @@ public class BTree
 
 
 	// Constructor
-	public BTree(int t, File f)
+	public BTreeSujeet(int t, File f)
 	{
 		degree =t ;
 		root = new BTreeNode(degree) ;
