@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 /**
  * [STATUS] Nearly complete.
@@ -157,7 +158,12 @@ public class GeneBankCreateBTree {
 					// Add the binary sequence to the tree, ignore sequences of inappropriate length.
 					if (bseq.length() == k * 2) {
 						TreeObject obj = new TreeObject(Long.parseLong(bseq));
-						tree.treeInsertKey(obj);
+						try {
+							tree.treeInsertKey(obj);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 				

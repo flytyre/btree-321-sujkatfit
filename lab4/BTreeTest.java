@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 
 /**
  * TestBench to test the BTree Class
@@ -7,14 +8,14 @@ import java.io.File;
  */
 public class BTreeTest 
 {
-	static int MAX_ELEMENTS_IN_TREE = 11 ;
-	static int degree = 4 ;
-        static File f  = new File("temp1.dat");
+	public static void main(String[] args) throws IOException
+	{
         
 	//BTree.BTreeNode temp = new BTree.BTreeNode(3) ;
 
-   public static void main(String[] args)
-   {
+		File f  = new File("temp1.dat");
+        int degree = 4 ;
+	   int MAX_ELEMENTS_IN_TREE = 11 ;
 	   BTree newtree = new BTree (degree, f) ;
 	  /* for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
 	   {
@@ -88,7 +89,7 @@ public class BTreeTest
 	   newtree.treeInsertKey(tb24);
 	   newtree.treeInsertKey(tb25);
 	   
-	   newtree.printBTree_Freq();
+	   //newtree.printBTree_Freq();
 	   //newtree.printBTree();
 	   
    }
