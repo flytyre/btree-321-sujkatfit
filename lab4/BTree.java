@@ -93,7 +93,8 @@ public class BTree
 	 */
 	public int diskWrite(BTreeNode node) throws IOException 
 	{
-
+		
+		
 		if(!(node.hasIndex))
 		{
 			node.index = genDiskIndex() ;
@@ -105,6 +106,9 @@ public class BTree
 		// Writing the KeyObject
 		for(int i = 0 ; i < 2*(degree)-1 ; i++)
 		{
+			if (node.keyObject[i] == null) {
+				System.err.println("Null object");
+			}
 			raf.writeLong(node.keyObject[i].getKey());      // Key of the tree Object
 			raf.writeInt(node.keyObject[i].getFrequency()); // Frequency of the tree Object
 		}
@@ -113,7 +117,6 @@ public class BTree
 		for(int i = 0 ; i < 2*(degree) ; i++)
 		{
 			raf.writeLong(node.diskOffsets[i]);      // Pointer to the file on disk
-
 		}
 
 		raf.writeBoolean(node.isLeaf());         // Boolean Value of isLeaf()
@@ -232,12 +235,21 @@ public class BTree
 		return size ; 
 
 	}
+	
+	/**
+	 * CheckOffsets
+	 */
+	public void printOffsets(BTreeNode node) {
+		for(int i = 0 ; i < 2*(degree) ; i++)
+		{
+		node.diskOffsets[i] = raf.readLong();      // Pointer to the file on disk
+		}
+	}
 
 
 	// Inner Class
 	public class BTreeNode 
 	{
-
 		//public TreeObject[] treeObjects;
 		public TreeObject[] keyObject;
 		public BTreeNode[] pointers; // pointers to the children nodes
@@ -245,11 +257,15 @@ public class BTree
 		boolean isLeaf;
 		boolean isFull;
 		public int numKeys; // number of elements in the Node
+		public int numPointers;
 		private int degree; //degree of the BTree
 		boolean hasIndex ;
 		int index ;
 
-		// Constructor.
+		/**
+		 * 
+		 * @param t
+		 */
 		public  BTreeNode(int t)
 		{
 			degree = t;
@@ -258,6 +274,7 @@ public class BTree
 			pointers = new BTreeNode[2*degree];
 			diskOffsets = new long[2*degree] ;
 			numKeys=0;
+			numPointers = 0;
 			isFull = isFull(); 
 			//treeObjects = new TreeObject[2*degree-1];
 
@@ -268,18 +285,13 @@ public class BTree
 
 			for(int j = 0 ; j < 2*degree -1 ; j++)
 			{
-				//keyObject[j] = new TreeObject();  // Cant figure out null pointer issue here.
+				keyObject[j] = new TreeObject(-1);  // Cant figure out null pointer issue here.
 			}
 
 			index = -1;
 			hasIndex = false ;
-
-
-
 		}
-
-
-
+		
 
 		/**
 		 * This method splits the node given by the ith child of the given node
@@ -543,20 +555,14 @@ public class BTree
 			return (numKeys < keyObject.length);
 		}
 
+		
+		
 		private boolean isLeaf() {
-			if (pointers[0] == null) {
+			if (numPointers == 0) {
 				return true;
 			}
+			
 			return false;
-		}
-		
-		
-		/**
-		 * Returns whether or not this node is full.
-		 * @return
-		 */
-		private boolean isEmpty() {
-			return (numKeys == 0);
 		}
 		
 
