@@ -1,5 +1,5 @@
 /**
- * [STATUS] Complete?
+ * [STATUS] Complete.
  * 
  * TreeObject class.
  * 
@@ -34,6 +34,10 @@ public class TreeObject {
 	 */
 	public void incFrequency() {
 		frequency++;
+	}
+	
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
 	}
 	
 	/**
