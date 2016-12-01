@@ -40,6 +40,10 @@ public class TreeObject {
 		this.frequency = frequency;
 	}
 	
+	public int getFrequency() {
+		return frequency;
+	}
+	
 	/**
 	 * Compares this TreeObject to a given TreeObject.
 	 * @param that The TreeObject to compare with this TreeObject.

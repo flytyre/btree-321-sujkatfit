@@ -92,7 +92,7 @@ public class GeneBankCreateBTree {
 		 * Instantiate BTree and Scanner.
 		 */
 
-		BTreeKaty tree = new BTreeKaty(t);
+		BTree tree = new BTree(t, null); // XXX: Don't forget about this!!
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		
 	
@@ -157,7 +157,7 @@ public class GeneBankCreateBTree {
 					// Add the binary sequence to the tree, ignore sequences of inappropriate length.
 					if (bseq.length() == k * 2) {
 						TreeObject obj = new TreeObject(Long.parseLong(bseq));
-						tree.insert(obj);
+						tree.treeInsertKey(obj);
 					}
 				}
 				

@@ -49,12 +49,12 @@ public class BTree implements Serializable
 	{
 		BTreeNode rt = this.root ;
 
-		if(rt.isFull)  // Does a split. Creates a new root
+		if(rt.isFull())  // Does a split. Creates a new root
 		{
 
 			BTreeNode newRoot = new BTreeNode(degree) ;
 			this.root = newRoot ;
-			newRoot.isLeaf= false;
+
 			newRoot.numKeys = 0 ;
 			newRoot.pointers[0] = rt ;
 			BTreeNode.nodeSplit(newRoot,0);
@@ -81,7 +81,7 @@ public class BTree implements Serializable
 		{
 			BTreeNode node = BTQueue.remove();
 			node.printNode();
-			if(!node.isLeaf)
+			if(!node.isLeaf())
 			{
 				for(int i=0; i <= node.numKeys; i++)
 				{
@@ -101,7 +101,7 @@ public class BTree implements Serializable
 		{
 			BTreeNode node = BTQueue.remove();
 			node.printNode_freq();
-			if(!node.isLeaf)
+			if(!node.isLeaf())
 			{
 				for(int i=0; i <= node.numKeys; i++)
 				{
@@ -127,8 +127,6 @@ public class BTree implements Serializable
 		public TreeObject[] keyObject;
 		public BTreeNode[] pointers; // pointers to the children nodes
 		public int[] diskOffsets ;
-		boolean isLeaf;
-		boolean isFull ;
 		public int numKeys; // number of elements in the Node
 		private static int degree; //degree of the BTree
 		boolean hasIndex ;
@@ -138,12 +136,10 @@ public class BTree implements Serializable
 		public  BTreeNode(int t)
 		{
 			degree = t;
-			isLeaf = true;
 			keyObject = new TreeObject[2*degree-1];
 			pointers = new BTreeNode[2*degree];
 			diskOffsets = new int[2*degree] ;
 			numKeys=0;
-			isFull = false; 
 			//treeObjects = new TreeObject[2*degree-1];
 
 			for(int i = 0 ; i < 2*degree ; i ++)
@@ -178,7 +174,6 @@ public class BTree implements Serializable
 			int temp_diskOffSet ;
 
 			BTreeNode newNode = new BTreeNode(degree) ;
-			newNode.isLeaf = node.pointers[index].isLeaf ;
 
 			//Set number of keys to half of full capacity
 			newNode.numKeys = degree -1 ;
@@ -189,7 +184,7 @@ public class BTree implements Serializable
 			}
 
 			//Copy pointers from full node to newly created node
-			if(!node.pointers[index].isLeaf)
+			if(!node.pointers[index].isLeaf())
 			{
 				for(int count = 0; count < degree; count++)
 				{
@@ -199,8 +194,8 @@ public class BTree implements Serializable
 			//Change count to reflect split node
 			node.pointers[index].numKeys = degree -1;
 
-			//Change isFull flag to false to reflect reduction in number of keys.
-			node.pointers[index].isFull = false ;
+			//Change isFull() flag to false to reflect reduction in number of keys.
+
 
 			//Move pointers around so as to create space for new pointer pointing to newly created node.
 			for(int count = node.numKeys ; count >= index +1;count -- )
@@ -219,11 +214,7 @@ public class BTree implements Serializable
 			node.keyObject[index] = node.pointers[index].keyObject[degree -1 ] ;
 			//Increment parent count by 1
 			node.numKeys = node.numKeys +1;
-			// Check for isFull status
-			if(node.numKeys == 2*degree -1)
-			{
-				node.isFull = true ;
-			}
+			// Check for isFull() status
 
 			temp_diskOffSet= diskWrite(node.pointers[index], raf) ;
 			node.diskOffsets[index] = temp_diskOffSet ;
@@ -323,7 +314,7 @@ public class BTree implements Serializable
 			//BTreeNode internal_node = node ;
 			int i = node.numKeys -1;
 
-			while(!node.isLeaf)
+			while(!node.isLeaf())
 			{
 				i = node.numKeys -1;
 
@@ -337,7 +328,7 @@ public class BTree implements Serializable
 					i = i+1 ;
 
 					//node.printNode();
-					if(node.pointers[i].isFull)
+					if(node.pointers[i].isFull())
 					{
 						nodeSplit(node, i);
 						//if(key > node.key[i])
@@ -357,13 +348,13 @@ public class BTree implements Serializable
 				}
 			}
 
-			if(node.isLeaf)
+			if(node.isLeaf())
 			{
 				i = node.numKeys -1;
 
 				if(!isKeyDuplicate(node,keyObject,i)) // If key is a duplicate don't do any of the following.
 				{
-					System.out.println("Inside InsertKey, isleaf before while");
+					System.out.println("Inside InsertKey, isLeaf() before while");
 
 					//while(i >= 0 && key < node.key[i])
 					while(i >= 0 && (keyObject.compareTo(node.keyObject[i] )== -1))
@@ -371,14 +362,11 @@ public class BTree implements Serializable
 						node.keyObject[i+1] = node.keyObject[i] ;
 						i = i -1 ;
 					}
-					System.out.println("Inside InsertKey, isleaf after while");
+					System.out.println("Inside InsertKey, isLeaf() after while");
 					node.keyObject[i+1] = keyObject ;
 					node.keyObject[i+1].incFrequency();
 					node.numKeys = node.numKeys +1;
-					if(node.numKeys == 2*degree -1)
-					{
-						node.isFull = true ;
-					}
+
 					//diskWrite(node);
 				}
 			}
@@ -448,5 +436,30 @@ public class BTree implements Serializable
 			node.keyObject[i] = keyObject ;
 		}
 
+		
+		/**
+		 * Returns whether or not this node is full.
+		 * @return
+		 */
+		private boolean isFull() {
+			return (numKeys < keyObject.length);
+		}
+
+		private boolean isLeaf() {
+			if (pointers[0] == null) {
+				return true;
+			}
+			return false;
+		}
+		
+		
+		/**
+		 * Returns whether or not this node is full.
+		 * @return
+		 */
+		private boolean isEmpty() {
+			return (numKeys == 0);
+		}
+		
 	}
 }
