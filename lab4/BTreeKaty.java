@@ -27,9 +27,11 @@ public class BTreeKaty
 	public BTreeKaty(int t, File f)
 	{
 		degree =t ;
-		root = new BTreeNode(degree) ;
+		root = new BTreeNode() ;
 		root.index = 0;
 		root.hasIndex = true ;
+		root.isLeaf = true;
+
 
 		f = new File("Test.dat") ;
 		try {
@@ -48,40 +50,10 @@ public class BTreeKaty
 	 */
 	public void treeInsertKey(TreeObject keyObject) throws IOException
 	{
-		BTreeNode rt = root ;
+//		BTreeNode rt = root ;
 
-		if(rt.isFull())  // Does a split. Creates a new root
-		{
-			System.out.println("root index before =:" + root.index);
-			BTreeNode newRoot = new BTreeNode(degree) ;
-			root = newRoot ;
-			newRoot.isLeaf = newRoot.isLeaf();
-			newRoot.numKeys = 0 ;
-			newRoot.index = 0;
-			newRoot.hasIndex = true ;
-
-			rt.hasIndex = false ;
-			//System.out.println("root index after =:" + BTree.root.index);
-
-
-			newRoot.diskOffsets[0] = diskWrite(rt) ;
-
-			//System.out.println("diskoffset =:" + BTree.root.diskOffsets[0]);
-
-
-			newRoot.pointers[0] = null ;
-
-			newRoot.nodeSplit(newRoot,0);
-			//System.out.println("Inside rt is full, about to print node");
-			newRoot.printNode();
-
-			newRoot.insertKeyObject(newRoot,keyObject);
-
-		}
-		else
-		{
-			root.insertKeyObject(root,keyObject);
-		}
+		root.insertKeyObject(root, keyObject);
+		
 	}
 
 	/**
@@ -119,8 +91,8 @@ public class BTreeKaty
 			raf.writeLong(node.diskOffsets[i]);      // Pointer to the file on disk
 		}
 
-		raf.writeBoolean(node.isLeaf());         // Boolean Value of isLeaf()
-		raf.writeBoolean(node.isFull());         // Boolean Value of isFull()
+		raf.writeBoolean(node.isLeaf);         // Boolean Value of isLeaf()
+		raf.writeBoolean(node.isFull);         // Boolean Value of isFull()
 		raf.writeInt(node.numKeys) ;           // int Value of numKeys
 
 		raf.writeBoolean(node.hasIndex);       // Boolean Value of hasIndex
@@ -137,7 +109,7 @@ public class BTreeKaty
 
 		raf.seek(offset * getNodeSize()) ;
 
-		BTreeNode node = new BTreeNode(degree) ;
+		BTreeNode node = new BTreeNode() ;
 
 		// Reading the KeyObject
 		for(int i = 0 ; i < 2*(degree) -1 ; i++)
@@ -166,8 +138,9 @@ public class BTreeKaty
 
 	/**
 	 * Prints all nodes of the Btree level by level(BSF).
+	 * @throws IOException 
 	 */
-	public void printBTree()
+	public void printBTree() throws IOException
 	{
 		Queue<BTreeNode> BTQueue = new LinkedList<BTreeNode>();
 		BTQueue.add(root);
@@ -175,11 +148,11 @@ public class BTreeKaty
 		{
 			BTreeNode node = BTQueue.remove();
 			node.printNode();
-			if(!node.isLeaf())
+			if(!node.isLeaf)
 			{
 				for(int i=0; i <= node.numKeys; i++)
 				{
-					BTQueue.add(node.pointers[i]);
+					BTQueue.add(diskRead(node.diskOffsets[i]));
 				}
 			}
 		}
@@ -195,7 +168,7 @@ public class BTreeKaty
 		{
 			BTreeNode node = BTQueue.remove();
 			node.printNode_freq();
-			if(!node.isLeaf())
+			if(!node.isLeaf)
 			{
 				for(int i=0; i <= node.numKeys; i++)
 				{
@@ -251,7 +224,6 @@ public class BTreeKaty
 	// Inner Class
 	public class BTreeNode 
 	{
-		//public TreeObject[] treeObjects;
 		public TreeObject[] keyObject;
 		public BTreeNode[] pointers; // pointers to the children nodes
 		public long[] diskOffsets ;
@@ -259,7 +231,7 @@ public class BTreeKaty
 		boolean isFull;
 		public int numKeys; // number of elements in the Node
 		public int numPointers;
-		private int degree; //degree of the BTree
+		//private int degree; //degree of the BTree
 		boolean hasIndex ;
 		int index ;
 
@@ -267,17 +239,15 @@ public class BTreeKaty
 		 * 
 		 * @param t
 		 */
-		public  BTreeNode(int t)
+		public  BTreeNode()
 		{
-			degree = t;
-			isLeaf = isLeaf();
+			isLeaf = false;
 			keyObject = new TreeObject[2*degree-1];
 			pointers = new BTreeNode[2*degree];
 			diskOffsets = new long[2*degree] ;
 			numKeys=0;
 			numPointers = 0;
 			isFull = isFull(); 
-			//treeObjects = new TreeObject[2*degree-1];
 
 			for(int i = 0 ; i < 2*degree ; i ++)
 			{
@@ -286,67 +256,99 @@ public class BTreeKaty
 
 			for(int j = 0 ; j < 2*degree -1 ; j++)
 			{
-				keyObject[j] = new TreeObject(-1);  // Cant figure out null pointer issue here.
+				keyObject[j] = new TreeObject(Integer.MAX_VALUE);  // Cant figure out null pointer issue here.
 			}
 
 			index = -1;
-			hasIndex = false ;
+			hasIndex = false;
 		}
 		
 
 		/**
 		 * This method splits the node given by the ith child of the given node
+		 * NodeSplit should never be called on a leaf that is not also the root.
 		 * @param node Parent of the node to be split.
 		 * @param i is the index of the child of the node which is to be split.
 		 * @throws IOException 
 		 */
-		public void nodeSplit(BTreeNode node, int i) throws IOException
+		public void nodeSplit(BTreeNode node, int i)
 		{
 			int index = i ;
+			int temp_diskOffSet ;
 
-			if(node.pointers[index] == null)
-			{
-				node.pointers[index] = diskRead(node.diskOffsets[index]);
+			///////////////////////////////
+			// Case 1: very first split //
+			/////////////////////////////
+			// # of new nodes = 2
+			// the original root becomes a child of new node
+			// other new node inherits leaf status from original root
+			// root pointer moves to original root's parent
+		
+			if (node == root && node.isLeaf) {
+	
+				BTreeNode tmp = root; // store current root
+				
+				BTreeNode newRoot = new BTreeNode() ;	// create new node
+				root = newRoot ;						// point root to this new node
+				
+//				newRoot.isLeaf= false;	// taken care of by default
+				newRoot.numKeys = 0 ;
+				newRoot.pointers[0] = tmp;
+				newRoot.pointers[1] = new BTreeNode();
 			}
-
-			BTreeNode newNode = new BTreeNode(degree) ;
-			newNode.isLeaf = node.pointers[index].isLeaf() ;
+			
+			
+			////////////////////////////
+			// Case 2: tree grows up //
+			//////////////////////////
+			// # of new nodes = # of levels + 1
+			// 
+			
+			if (node == root) {
+				// tree will grow upwards
+			}
+		
+			
+			//////////////////////////////////
+			// Case 3: Tree grows sideways //
+			////////////////////////////////
+			// # of new nodes = 1
+			//
+				
+			BTreeNode newSibling = new BTreeNode() ;
+			newSibling.isLeaf = node.pointers[index].isLeaf ;
 
 			//Set number of keys to half of full capacity
-			newNode.numKeys = degree -1 ;
-
-
+			int numKey = (node.numKeys)/2;
 			//Copy keys from full node to newly created node
-			for(int count = 0 ; count < degree-1; count++)
+			for(int count = 0 ; count < numKey; count++) 
 			{
-				newNode.keyObject[count] = node.pointers[index].keyObject[count + degree];
+				
+				newSibling.keyObject[count] = node.pointers[index].keyObject[count + degree];
+		
 			}
 
 			//Copy pointers from full node to newly created node
-			if(!node.pointers[index].isLeaf())
+			if(!node.pointers[index].isLeaf)
 			{
-				for(int count = 0; count < degree; count++)
+				for(int count = 0; count < numKey; count++)
 				{
-					newNode.pointers[count] = node.pointers[index].pointers[count + degree] ;
+					newSibling.pointers[count] = node.pointers[index].pointers[count + degree] ;
 				}
 			}
 			//Change count to reflect split node
 			node.pointers[index].numKeys = degree -1;
 
-			//Change isFull() flag to false to reflect reduction in number of keys.
-			node.pointers[index].isFull = isFull() ;
+			//Change isFull flag to false to reflect reduction in number of keys.
+			node.pointers[index].isFull = false ;
 
 			//Move pointers around so as to create space for new pointer pointing to newly created node.
 			for(int count = node.numKeys ; count >= index +1;count -- )
 			{
 				node.pointers[count+1] = node.pointers[count] ;
 			}
-
-
 			//Create pointers to newly created node.
-			node.pointers[index+1] = newNode ;
-
-
+			node.pointers[index+1] = newSibling ;
 			// Move keys around so as to make room for key coming from child node.
 			for(int count = node.numKeys -1 ; count >= index ; count-- )
 			{
@@ -355,35 +357,26 @@ public class BTreeKaty
 
 			//Move median key to parent. Node is parent in this case.
 			node.keyObject[index] = node.pointers[index].keyObject[degree -1 ] ;
-
 			//Increment parent count by 1
 			node.numKeys = node.numKeys +1;
+			// Check for isFull status
+			if(node.numKeys == 2*degree -1)
+			{
+				node.isFull = true ;
+			}
 
+			temp_diskOffSet= diskWrite(node.pointers[index]) ;
+			node.diskOffsets[index] = temp_diskOffSet ;
 
-			// Check for isFull() status
-		
-			node.isFull = isFull() ;
-		
+			temp_diskOffSet= diskWrite(newSibling) ;
+			node.diskOffsets[index+1] = temp_diskOffSet ;
 
-			//Writing children nodes to disk and storing the disk offset in the parent.
-
-			//System.out.println("Inside node split, 1 away from writedisk");
-			node.diskOffsets[index] = diskWrite(node.pointers[index]) ;
-			node.diskOffsets[index+1] = diskWrite(newNode) ;
-
-			//Removing the pointer in the parent to the children , so that the Java GC 
-			//will clean up the erstwhile nodes from memory.
-
-			node.pointers[index] = null ;
-			node.pointers[index +1 ] = null ;
-
-			if(!(node == root))
+			if(node == root)
 			{
 				diskWrite(node);
 			}
 
 		}
-
 
 
 		/**
@@ -413,77 +406,45 @@ public class BTreeKaty
 		 * @throws IOException 
 		 */
 		public void insertKeyObject(BTreeNode node, TreeObject keyObject) throws IOException
-		{
-			//BTreeNode internal_node = new BTreeNode(degree) ; // This is a temp node which holds the reconstructed child node read from disk.
-			//int i = node.numKeys -1;
-
-			while(!node.isLeaf()) // while node is not leaf.
-			{
-				int i = node.numKeys -1;
-
-				if(!isKeyDuplicate(node,keyObject,i)) // If key is a duplicate don't do any of the following.
-				{
-					//while(i >= 0 && key < node.key[i])
-					while(i >= 0 && (keyObject.compareTo(node.keyObject[i])== -1))
-					{
-						i = i -1;
-					}
-					i = i+1 ;  //Go to the next child
-				
-					BTreeNode child = diskRead(node.diskOffsets[i]);  //reading the child from disk
-
-					//node.printNode(); 
-					if(child.isFull())
-					{
-						nodeSplit(node, i);
-						//if(key > node.key[i])
-						if(keyObject.compareTo(node.keyObject[i] )== 1)
-						{
-							//System.out.println("Inside node is not leaf,inside while 1 away from writedisk");
-							diskWrite(child); //Write the old node to disk as the index i is changing in the next step
-							node.pointers[i] = null ;
-							i = i+1 ; // Change of index causes node to be written back to disk 
-							node.pointers[i] = diskRead(node.diskOffsets[i]) ;
+		{			
+			BTreeNode parent = node;
+			int index = 0;
+			
+			while (!node.isLeaf) {	
+				for(int i = 0; i <= node.numKeys; i++) {	// XXX: may be off by one
+					if(!isKeyDuplicate(node,keyObject,i)) {	// XXX: Does this handle disk writing ?
+						if (keyObject.compareTo(node.keyObject[i]) <=0) {
+							parent = node;
+							node = diskRead(node.diskOffsets[i]);
+							index = i;
 						}
 					}
-
-
-
-					//diskWrite(node); 
-					//diskRead(node);
-					//System.out.println("Inside node is leaf, 1 away from writedisk");
-					diskWrite(node);
-
-					//node = node.pointers[i];
-					node = diskRead(node.diskOffsets[i]);
-
 				}
 			}
-
-			if(node.isLeaf())
-			{
-				int i = node.numKeys -1;
-
-				if(!isKeyDuplicate(node,keyObject,i)) // If key is a duplicate don't do any of the following.
-				{
-
-
-					//while(i >= 0 && key < node.key[i])
-					while(i >= 0 && (keyObject.compareTo(node.keyObject[i] )== -1))
-					{
-						node.keyObject[i+1] = node.keyObject[i] ;
-						i = i -1 ;
-					}
-
-					node.keyObject[i+1] = keyObject ;
-					node.keyObject[i+1].incFrequency();
-					node.numKeys = node.numKeys +1;
-					node.isFull = isFull();
-
-					diskWrite(node);
+			
+			// Now node points to the appropriate leaf for insertion
+			
+			if (node.isFull()) {
+				//node = null;
+				nodeSplit(parent, index);
+			} 
+			
+			if (parent == null) {
+				System.err.println("Parent is null");
+			}
+			
+			for(int i = 0; i <= parent.numKeys; i++) {	// XXX: may be off by one
+				if (keyObject.compareTo(parent.keyObject[i]) < 0) {
+					node = diskRead(parent.diskOffsets[i]);
+					insertObject(node, keyObject);
+					break;
 				}
 			}
+		
+			diskWrite(node);
+		
 		}
+		
 
 		/**
 		 * Prints node content and associated Frequency
@@ -544,29 +505,84 @@ public class BTreeKaty
 		 * @param keyObject
 		 * @param i
 		 */
-		public void insertObject(BTreeNode node, TreeObject keyObject, int i)
+		public void insertObject(BTreeNode node, TreeObject keyObject)
 		{
-			node.keyObject[i] = keyObject ;
+			numKeys++;
+			int i = node.numKeys;
+			
+			while (i > 0) {		
+				int result = keyObject.compareTo(node.keyObject[i]);
+				
+				if (result >= 0) { 		// if addThis is greater than or equal to object at i
+					if (result != 0) {	// if addThis is not equal to object at i
+	
+						int stop = i;	// store this position in stop
+						i = numKeys;	// i is now pointing at first empty index
+						
+						while(i > stop) {	// while the object behind i is not the object we just added
+							node.keyObject[i] = node.keyObject[i - 1]; // shift objects forward
+							i--; // walk backwards
+						}
+					
+						node.keyObject[i] = keyObject;
+						return;
+
+					} else {	
+						node.keyObject[i].incFrequency();
+						return;
+					}
+				} 
+				i--;
+			}	
 		}
 
+		
+		/**
+		 * Removes the object at the given index.
+		 * @param index The given index.
+		 * @return removed The removed object.
+		 * @return null If the given index was out of range.
+		 */
+		private TreeObject removeObject(int index) {
+			if (index < 0 || index >= numKeys) {
+				return null;
+			}
+
+			TreeObject removed = keyObject[index]; // store object to remove 
+
+			int i = index;
+
+			while (keyObject[i + 1] != null) {
+				keyObject[i] = keyObject[i + 1];
+				i++;
+			}
+
+			numKeys--;
+			return removed;
+		}
+
+		
+		
 		/**
 		 * Returns whether or not this node is full.
 		 * @return
 		 */
 		private boolean isFull() {
-			return (numKeys < keyObject.length);
-		}
-
-		
-		
-		private boolean isLeaf() {
-			if (numPointers == 0) {
-				return true;
-			}
-			
-			return false;
+			return (numKeys >= keyObject.length);
 		}
 		
+		
+//		private boolean isLeaf() {
+//			if (numPointers == 0) {
+//				return true;
+//			}
+//			
+//			return false;
+//		}
+		
+		private boolean willBeFull() {
+			return (numKeys +1 >= keyObject.length);
+		}
 
 	}
 }

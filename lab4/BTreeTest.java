@@ -16,8 +16,9 @@ public class BTreeTest
 		File f  = new File("temp1.dat");
         int degree = 4 ;
 	   int MAX_ELEMENTS_IN_TREE = 11 ;
-	   BTree newtree = new BTree (degree, f) ;
-	  /* for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
+	   //BTree newtree = new BTree (degree, f) ;
+	   BTreeKaty newtree = new BTreeKaty (degree, f);
+	   /* for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
 	   {
 		   newtree.treeInsertKey(i*10);  
 	   }*/
@@ -90,7 +91,7 @@ public class BTreeTest
 //	   newtree.treeInsertKey(tb25);
 //	   
 	   //newtree.printBTree_Freq();
-	   //newtree.printBTree();
+	   newtree.printBTree();
 	   
    }
 	
