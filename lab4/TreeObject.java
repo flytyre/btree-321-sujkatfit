@@ -20,6 +20,12 @@ public class TreeObject {
 		frequency = 0;
 	}
 	
+	public TreeObject() 
+	{
+		this.key = -1;  //Non positive Key
+		setFrequency(0);
+	}
+	
 	/**
 	 * Returns the key stored in this TreeObject.
 	 * @return key The key stored in this TreeObject.
