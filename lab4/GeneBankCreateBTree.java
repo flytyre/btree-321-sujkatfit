@@ -155,7 +155,7 @@ public class GeneBankCreateBTree {
 				
 					// Add the binary sequence to the tree, ignore sequences of inappropriate length.
 					if (bseq.length() == k * 2) {
-						TreeObject obj = new TreeObject(Long.parseLong(bseq));
+						KeyObject obj = new KeyObject(Long.parseLong(bseq));
 						try {
 							tree.treeInsertKey(obj);
 						} catch (IOException e) {

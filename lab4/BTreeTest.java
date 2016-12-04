@@ -19,11 +19,11 @@ public class BTreeTest {
 
 		for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
 		{
-			TreeObject tb2 = new TreeObject(i*10);
+			KeyObject tb2 = new KeyObject(i*10);
 			newtree.treeInsertKey(tb2);  
 		}
 
-		newtree.printBTree();
+		System.out.println(newtree.printBTree());
 
 	}
 }
