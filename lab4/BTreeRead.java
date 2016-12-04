@@ -15,7 +15,7 @@ public class BTreeRead {
 
 		btree = new File(args[0]); 
 		
-		RandomAccessFile raf = new RandomAccessFile(btree,"rw");	// what is this line doing?
+		RandomAccessFile raf = new RandomAccessFile(btree, "rw");	// what is this line doing?  raf is not used.
 
 		if (!btree.exists()) { 
 			System.out.println("File Not found");

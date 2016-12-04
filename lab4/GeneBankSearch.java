@@ -71,28 +71,7 @@ public class GeneBankSearch {
 			if (debug != 0) {
 				printUsage(6);
 			}
-		}
-				
-		// XXX: Is there an easier way to collect the sequence length?
-		int stop = 0;
-		int start = filename.length() - 1;
-		int flag = 0;
-		while (filename.charAt(start) != '.' && flag < 2) {
-			if (filename.charAt(start) == '.') {
-				if (flag == 0) { 	// if no '.' have been found yet
-					stop = start;	// mark this '.' as the start
-				}					
-				flag++;				// increment flag (number of '.' found)
-			}
-			start--;
-		}
-		
-		String tmp = "";
-		for (int i = start; i < stop; i++) {
-			tmp += filename.charAt(i);
-		}
-		
-		k = Integer.parseInt(tmp);	
+		}	
 	
 		scan = new Scanner(query);	// throws clause required by Java, but code should never reach this point if query does not exist.
 		
@@ -100,10 +79,10 @@ public class GeneBankSearch {
 		
 			dseq = scan.nextLine();
 			
-			// Ensure query file is compatible with given BTree.
-			if (dseq.length() != k) {
-				printUsage(8);
-			} 
+//			// Ensure query file is compatible with given BTree. *** We do not have to check for this, it is assumed the user inputs correct files
+//			if (dseq.length() != k) {
+//				printUsage(8);
+//			} 
 			
 			for (int i = 0; i < dseq.length(); i++) {
 				char c = dseq.charAt(i);

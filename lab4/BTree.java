@@ -233,6 +233,61 @@ public class BTree {
 		}
 	}
 
+	/** 
+	 * Searches for a given key in the BTree.
+	 * @param key
+	 * @return SearchObject An object containing the node and index the given key is located at.
+	 * @return null If the key could not be found.
+	 * @throws IOException
+	 */
+	public SearchObject search(long key) throws IOException {
+
+		/////////////////////////////////
+		// I'll try to simplify this, //
+		// but it works for now.	 //
+		//////////////////////////////
+		
+		BTreeNode node = root; 
+
+		while (!node.isLeaf && node.keyObject[0].getKey() != -1) {	// can't figure out how to simplify this
+
+			// if key is larger than the largest key in this node,
+			// skip to this node's rightmost child
+			if (key > node.keyObject[node.numKeys-1].getKey()) {
+				node = diskRead(node.diskOffsets[node.numKeys-1]);
+				
+			} else {
+
+				// iterate through keys in this node, if key is 
+				// smaller than the key at an index in the node, 
+				// node becomes the child at the corresponding index
+				for(int i = 0; i < node.numKeys; i++) {	
+					if (key < node.keyObject[i].getKey()) {
+						node = diskRead(node.diskOffsets[i]);
+					}
+
+					if (key == node.keyObject[i].getKey()) {
+						return new SearchObject(node, i);
+					}
+				}
+			}
+		}
+		
+		// now we have to process final node key might be in
+		// first check range, return null if out of range
+		// look for key in this node if in range
+		if (key <= node.keyObject[node.numKeys].getKey() && key >= node.keyObject[0].getKey()) {
+			
+			for(int i = 0; i < node.numKeys; i++) {	
+				if (key == node.keyObject[i].getKey()) {
+					return new SearchObject(node, i);
+				}
+			}
+		}
+
+		return null;
+	}
+	
 	/**
 	 * Inserts keyObject into the BTree.
 	 * @param keyObject given keyObject
