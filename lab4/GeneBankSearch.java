@@ -78,17 +78,20 @@ public class GeneBankSearch {
 		
 		while (scan.hasNextLine()) {
 		
-			dseq = scan.nextLine();	
+			dseq = scan.nextLine().toLowerCase().trim();	
 			
 			for (int i = 0; i < dseq.length(); i++) {
 				char c = dseq.charAt(i);
 		
 				switch (c) {
 					case ('a'): bseq += "00";
+								break;
 					case ('c'): bseq += "01";
+								break;
 					case ('g'): bseq += "10";
+								break;
 					case ('t'): bseq += "11";	
-					//case ('n'): seq = "";	// XXX: I don't think this is needed when searching... check query files to be sure
+								break;
 				}		
 			}
 

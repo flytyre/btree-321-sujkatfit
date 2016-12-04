@@ -19,6 +19,7 @@ public class GeneBankCreateBTree {
 		File gbk;
 		File btree;
 		Scanner scan;
+		boolean collecting = false;
 		int k;
 		int t; 
 		int cache;
@@ -90,10 +91,11 @@ public class GeneBankCreateBTree {
 		 * Instantiate BTree and Scanner.
 		 */
 		
-		String filename = (gbk.getName() + "btree.data." + k + "." + t);
+		String filename = (gbk.getName() + ".btree.data." + k + "." + t);
 		btree = new File(filename);
 		BTree tree = new BTree(btree, t); 
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
+		nextLine = scan.nextLine();
 		
 		/*
 		 * Collect and convert sequences, populate BTree.
@@ -104,16 +106,23 @@ public class GeneBankCreateBTree {
 		while(!nextLine.contains(endflag)) {  // Continue until endflag is found -- just after DNA sequences.
 			
 			// Position the scanner.
-			while(!nextLine.contains(startflag)) {	// Continue until startflag is fonud -- just before DNA sequences.
+			while(!nextLine.contains(startflag) && !collecting) {	// Continue until startflag is fonud -- just before DNA sequences.
 				nextLine = scan.nextLine();
 			}
-			
+
 			// Apply delimiter to the scanner.
 			scan.useDelimiter(DELIMITER);
 
+			// at this point, nextLine is pointing at the word origin.
+			// need to advance scanner, but only want to do this once
+			if (!collecting) {
+				nextLine = scan.nextLine().toLowerCase().trim();
+				collecting = true;
+			}
+			
 			int start = 0;		// reset cursor
 			line = nextLine;	// advance line
-			nextLine = scan.nextLine().toLowerCase();	// grab next line
+			nextLine = scan.nextLine().toLowerCase().trim();	// grab next line
 			
 			// Collect DNA sequence.
 			while (start < line.length()) {
@@ -146,10 +155,15 @@ public class GeneBankCreateBTree {
 				
 						switch (c) {
 							case ('a'): bseq += "00";
+										break;
 							case ('c'): bseq += "01";
+										break;
 							case ('g'): bseq += "10";
+										break;
 							case ('t'): bseq += "11";	
+										break;
 							case ('n'): bseq = "";	// Unreadable DNA, discard entire sequence.
+										break;
 						}		
 					}
 				
