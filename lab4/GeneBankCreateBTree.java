@@ -23,7 +23,7 @@ public class GeneBankCreateBTree {
 		int t; 
 		int cache;
 		int cacheSize = 0;
-		int debug = -1;
+		int debug = 0;
 		String nextLine = "";
 		String line = "";
 		String dseq = "";
@@ -172,6 +172,11 @@ public class GeneBankCreateBTree {
 		}
 		
 		scan.close();
+		
+		if (debug == 1) {
+			File dump = new File("dump");
+			
+		}
 	}
 		
 	

@@ -18,7 +18,7 @@ public class GeneBankSearch {
 
 		int cache;
 		int cacheSize;
-		int debug = -1;
+		int debug = 0;
 		int k; 
 		File source;
 		File query;
