@@ -6,12 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * [STATUS] Nearly complete.
- * TODO: Test search method
- * TODO: Refactor variable names for consistency
- * TODO: Refactor method names for clarity
- * TODO: Improve javadocs (low priority)
- * TODO: Edit code syntax for consistency (low priority)
+ * [STATUS] Complete?
  * 
  * BTree Class.
  * 
@@ -58,7 +53,7 @@ public class BTree {
 		
 		raf = new RandomAccessFile(f, "rw");
 		degree = getDegree();  
-		rootOffset = getRootOffSet();
+		rootOffset = getRootOffset();
 		root = new BTreeNode();
 		root.index = 0;
 		root.hasIndex = true;
@@ -206,8 +201,7 @@ public class BTree {
 	 * @return
 	 * @throws IOException
 	 */
-	public int getRootOffSet() throws IOException {
-		raf.seek(getDegree());
+	public int getRootOffset() throws IOException {
 		return raf.readInt();
 	}
 	
@@ -245,7 +239,7 @@ public class BTree {
 	/**
 	 * Prints all nodes with their frequencies.
 	 */
-	public void printBTree_Freq() throws IOException {
+	public void printBTreeFreq() throws IOException {
 		
 		Queue<BTreeNode> BTQueue = new LinkedList<BTreeNode>();
 		BTQueue.add(root);
@@ -278,8 +272,8 @@ public class BTree {
 
 			// if key is larger than the largest key in this node,
 			// skip to this node's rightmost child
-			if (key > node.keyObjects[node.numKeys-1].getKey()) {
-				node = diskReadNode(node.diskOffsets[node.numKeys-1]);
+			if (key > node.keyObjects[node.numKeys - 1].getKey()) {
+				node = diskReadNode(node.diskOffsets[node.numKeys]);
 				
 			} else {
 
@@ -289,11 +283,12 @@ public class BTree {
 				for(int i = 0; i < node.numKeys; i++) {	
 					if (key < node.keyObjects[i].getKey()) {
 						node = diskReadNode(node.diskOffsets[i]);
+						i = node.numKeys; // break out of loop
 					}
 
 					if (key == node.keyObjects[i].getKey()) {
-						System.out.println("Hit! The key " + key + " is in the following node at index " + i + ":");
-						node.printNodeFreq();
+						int freq = node.keyObjects[i].getFrequency();
+						System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
 						return;
 					}
 				}
@@ -301,21 +296,20 @@ public class BTree {
 		}
 		
 		// now we have to process final node key might be in
-		// first check range, return null if out of range
 		// look for key in this node if in range
-		if (key <= node.keyObjects[node.numKeys].getKey() && key >= node.keyObjects[0].getKey()) {
+		if (key <= node.keyObjects[node.numKeys - 1].getKey() && key >= node.keyObjects[0].getKey()) {
 			
 			for(int i = 0; i < node.numKeys; i++) {	
 				if (key == node.keyObjects[i].getKey()) {
-					System.out.println("Hit! The key " + key + " is in the following node at index " + i + ":");
-					node.printNodeFreq();
+					int freq = node.keyObjects[i].getFrequency();
+					System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
 					return;
 				}
 			}
 		}
 		
 		// if method didn't return before now, search result was a miss
-		System.out.println("Miss! The key " + key + " is not in this BTree.");
+		System.out.println("Frequency of " + key + " in this BTree: (0)");
 	}
 	
 	/**

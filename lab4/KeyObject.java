@@ -17,7 +17,7 @@ public class KeyObject {
 	 */
 	public KeyObject(long key) {
 		this.key = key;
-		setFrequency(0);
+		setFrequency(1);
 	}
 	
 	/**
@@ -26,7 +26,7 @@ public class KeyObject {
 	 */
 	public KeyObject() {
 		this.key = -1;  // Non-positive dummy key.
-		setFrequency(0);
+		setFrequency(1);
 	}
 	
 	/**

@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Test class for the BTree class.
+ * Test class for creating a new BTree.
  * 
  * @author Sujeet Ayyapureddi, Margiawan Fitriani, Kathryn Silva
  *
@@ -24,6 +24,5 @@ public class BTreeTest {
 		}
 
 		System.out.println(newtree.printBTree());
-
 	}
 }
