@@ -27,6 +27,7 @@ public class GeneBankSearch {
 		String filename;
 		String dseq = "";
 		String bseq = "";
+		BTree tree;
 		
 		// Check for invalid number of arguments.
 		if (args.length < 3 || args.length > 5) {
@@ -115,14 +116,7 @@ public class GeneBankSearch {
 					//case ('n'): seq = "";	// XXX: I don't think this is needed when searching... check query files to be sure
 				}		
 			}
-			
-			// do something with bseq here...
-			
-			// do we create a BTree object from the given file?
-			// or do we search the BTree file?  It's stored in binary...
-			// so we can't use a scanner on it...
-			// how is this supposed to work?
-			
+					
 			bseq = "";	
 		}
 		
@@ -134,7 +128,7 @@ public class GeneBankSearch {
 	 * @param code The specific error that resulted in calling printUsage
 	 */
 	static void printUsage(int code) {
-		// TODO: Improve language.
+
 		switch (code) {
 			case (0):	System.err.println("Invalid number of arguments.");
 						break;
@@ -152,7 +146,7 @@ public class GeneBankSearch {
 			case (4):	break;
 			
 			case (5):	System.err.println("Invalid cache size.");
-						System.err.println("Must be > 0.");	// XXX: is this correct?
+						System.err.println("Must be > 0.");	
 						break;
 						
 			case (6): 	System.err.println("Invalid debug option.");

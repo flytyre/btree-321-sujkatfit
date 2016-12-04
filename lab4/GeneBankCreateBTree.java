@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Scanner;
 /**
  * [STATUS] Nearly complete.
- * TODO: Implement degree generation based on BTreeNode disk size.
  * TODO: Implement debugging.
  * 
  * Driver class: Parses DNA sequences from file and creates BTree.
@@ -13,9 +12,11 @@ import java.util.Scanner;
  * 
  */
 public class GeneBankCreateBTree {
-	public static void main (String[] args) throws FileNotFoundException {
+
+	public static void main (String[] args) throws IOException {
 		
 		File gbk;
+		File btree = null;
 		Scanner scan;
 		int k;
 		int t; 
@@ -32,7 +33,7 @@ public class GeneBankCreateBTree {
 		
 		
 		/*
-		 * Collect user input...
+		 * Collect input from command-line.
 		 */
 		
 		// Check for invalid number of arguments.
@@ -45,6 +46,7 @@ public class GeneBankCreateBTree {
 		cache = 0;	// XXX: Must set to 0, cache is not yet implemented.
 		if (cache < 0 || cache > 1) {	// TODO: Simplify this?
 			printUsage(1);
+			
 		} else if (cache == 1) {
 			if (args.length > 4) {
 				cacheSize = Integer.parseInt(args[4]);	
@@ -62,11 +64,7 @@ public class GeneBankCreateBTree {
 		t = Integer.parseInt(args[1]); 
 		if (t < 0 || t == 1) {
 			printUsage(2);
-		} else if (t == 0) {
-			// TODO: Generate optimum t based on disk block 
-			// of 4096 and size of BTreeNode on disk. <-- what is this?
-			
-		}
+		} 
 		
 		// Collect gbk file and check for validity.
 		gbk = new File(args[2]); 
@@ -93,7 +91,7 @@ public class GeneBankCreateBTree {
 		 * Instantiate BTree and Scanner.
 		 */
 
-		BTree tree = new BTree(t, null); // XXX: Don't forget about this!!
+		BTree tree = new BTree(btree, t); 
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		
 	
