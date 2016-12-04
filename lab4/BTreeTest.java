@@ -15,7 +15,7 @@ public class BTreeTest {
 		int degree = 7 ;
 		File f  = new File("temp1.dat");
 
-		BTree newtree = new BTree (f);
+		BTree newtree = new BTree (f, degree);
 
 		for(int i = 0; i < MAX_ELEMENTS_IN_TREE; i++)
 		{

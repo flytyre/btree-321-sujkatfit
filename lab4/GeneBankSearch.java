@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -14,20 +15,20 @@ import java.util.Scanner;
  *
  */
 public class GeneBankSearch {
-	public static void main (String args[]) throws FileNotFoundException {
+	public static <BTreeNode> void main (String args[]) throws NumberFormatException, IOException {
 
 		int cache;
 		int cacheSize;
 		int debug = -1;
 		int k; 
-		File btree;
+		File source;
 		File query;
 		Scanner scan;
 		String DELIMITER = "[actg]*";
 		String filename;
 		String dseq = "";
 		String bseq = "";
-		BTree tree;
+		BTree btree;
 		
 		// Check for invalid number of arguments.
 		if (args.length < 3 || args.length > 5) {
@@ -53,9 +54,9 @@ public class GeneBankSearch {
 		}
 
 		// Collect btree file and check for validity.
-		btree = new File(args[1]); 
+		source = new File(args[1]); 
 		filename = args[1];
-		if (!btree.exists()) {
+		if (!source.exists()) {
 			printUsage(2);
 		}
 
@@ -73,13 +74,14 @@ public class GeneBankSearch {
 			}
 		}	
 	
+		btree = new BTree(source);
 		scan = new Scanner(query);	// throws clause required by Java, but code should never reach this point if query does not exist.
 		
 		while (scan.hasNextLine()) {
 		
 			dseq = scan.nextLine();
 			
-//			// Ensure query file is compatible with given BTree. *** We do not have to check for this, it is assumed the user inputs correct files
+//			// Ensure query file is compatible with given BTree. *** We do not have to check for this, it is assumed k matches in query and source
 //			if (dseq.length() != k) {
 //				printUsage(8);
 //			} 
@@ -95,7 +97,8 @@ public class GeneBankSearch {
 					//case ('n'): seq = "";	// XXX: I don't think this is needed when searching... check query files to be sure
 				}		
 			}
-					
+
+			btree.search(Long.parseLong(bseq)); 
 			bseq = "";	
 		}
 		
@@ -135,8 +138,8 @@ public class GeneBankSearch {
 			case (7): 	System.err.println("No cache size given.");
 						break;
 						
-			case (8):	System.err.println("The given btree and query files are not compatible.");
-						break;
+//			case (8):	System.err.println("The given btree and query files are not compatible.");
+//						break;
 		}
 	
 		if (code < 8) {
