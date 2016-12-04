@@ -78,12 +78,7 @@ public class GeneBankSearch {
 		
 		while (scan.hasNextLine()) {
 		
-			dseq = scan.nextLine();
-			
-//			// Ensure query file is compatible with given BTree. *** We do not have to check for this, it is assumed k matches in query and source
-//			if (dseq.length() != k) {
-//				printUsage(8);
-//			} 
+			dseq = scan.nextLine();	
 			
 			for (int i = 0; i < dseq.length(); i++) {
 				char c = dseq.charAt(i);
@@ -136,14 +131,11 @@ public class GeneBankSearch {
 						
 			case (7): 	System.err.println("No cache size given.");
 						break;
-						
-//			case (8):	System.err.println("The given btree and query files are not compatible.");
-//						break;
 		}
 	
-		if (code < 8) {
+		//if (code < 7) {
 			System.err.println("Usage: java GeneBankSearch <cache> <btree file> <query file> [<cache size>] [<debug level>]");			
-		}
+		//}
 		
 		System.exit(1);
 	}

@@ -610,15 +610,5 @@ public class BTree {
 
 			return sb.toString();
 		}
-
-//		/**
-//		 * This is a test method used for debug purposes.
-//		 * @param node
-//		 * @param keyObject
-//		 * @param i
-//		 */
-//		public void insertObject(TreeObject keyObject, int i) {
-//			keyObjects[i] = keyObject ;
-//		}
 	}
 }

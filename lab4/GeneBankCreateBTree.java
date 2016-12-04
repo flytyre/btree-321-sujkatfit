@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 /**
  * [STATUS] Nearly complete.
-
+ *
  * TODO: Implement debugging.
  * 
  * Driver class: Parses DNA sequences from file and creates BTree.
@@ -17,7 +17,7 @@ public class GeneBankCreateBTree {
 	public static void main (String[] args) throws IOException {
 		
 		File gbk;
-		File btree = null;
+		File btree;
 		Scanner scan;
 		int k;
 		int t; 
@@ -31,7 +31,6 @@ public class GeneBankCreateBTree {
 		String startflag = "ORIGIN";
 		String endflag = "//";
 		String DELIMITER = "[actgn/]*";
-		
 		
 		/*
 		 * Collect input from command-line.
@@ -87,15 +86,15 @@ public class GeneBankCreateBTree {
 			}
 		}
 	
-		
 		/*
 		 * Instantiate BTree and Scanner.
 		 */
-
+		
+		String filename = (gbk.getName() + "btree.data." + k + "." + t);
+		btree = new File(filename);
 		BTree tree = new BTree(btree, t); 
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		
-	
 		/*
 		 * Collect and convert sequences, populate BTree.
 		 */
