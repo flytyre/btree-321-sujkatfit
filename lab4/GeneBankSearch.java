@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 /**
- * [STATUS] Nearly complete.
- * 
- * TODO: Implement debugging.
+ * [STATUS] Complete.
  * 
  * Driver class: Searches given BTree using given query file.
  * 

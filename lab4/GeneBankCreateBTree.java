@@ -97,6 +97,9 @@ public class GeneBankCreateBTree {
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		nextLine = scan.nextLine();
 		
+		System.err.println("Creating BTree with filename " + filename);
+		System.err.println("Populating BTree from given gbk file.  This may take some time.");
+		
 		/*
 		 * Collect and convert sequences, populate BTree.
 		 */
@@ -113,7 +116,6 @@ public class GeneBankCreateBTree {
 			while(!collecting) {
 				nextLine = scan.nextLine();
 				if (nextLine.contains(startflag)) {
-					System.err.println("Caught startflag");
 					nextLine = scan.nextLine().toLowerCase().trim();
 					collecting = true;
 					break;
@@ -144,7 +146,6 @@ public class GeneBankCreateBTree {
 				} else {	// else, we have to wrap to the next line to finish the sequence.
 					
 					if (nextLine.contains(endflag)) {
-						System.err.println("Caught endflag");
 						collecting = false;
 						break;
 					}
@@ -181,11 +182,9 @@ public class GeneBankCreateBTree {
 				
 					// Add the binary sequence to the tree, ignore sequences of inappropriate length.
 					if (bseq.length() == k * 2) {
-						System.err.println("Sequence before inserting: " + bseq);
 						KeyObject obj = new KeyObject(Long.parseLong(bseq));
 						try {
 							tree.treeInsertKey(obj);
-							System.err.println("After insertion:" + obj.getKey());
 							
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -207,7 +206,7 @@ public class GeneBankCreateBTree {
 		}
 		
 		scan.close();
-		tree.printBTree();
+		System.out.println(tree.printBTree());
 		
 		if (debug == 1) {
 			File dump = new File("dump");

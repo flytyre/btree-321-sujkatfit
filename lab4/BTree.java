@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * [STATUS] Complete?
+ * [STATUS] Complete.
  * 
  * BTree Class.
  * 
@@ -288,7 +288,7 @@ public class BTree {
 
 					if (key == node.keyObjects[i].getKey()) {
 						int freq = node.keyObjects[i].getFrequency() + 1;
-						System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
+						System.out.println(key + " (" + freq + ")");
 						return;
 					}
 				}
@@ -302,14 +302,14 @@ public class BTree {
 			for(int i = 0; i < node.numKeys; i++) {	
 				if (key == node.keyObjects[i].getKey()) {
 					int freq = node.keyObjects[i].getFrequency() + 1;
-					System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
+					System.out.println(key + " (" + freq + ")");
 					return;
 				}
 			}
 		}
 		
 		// if method didn't return before now, search result was a miss
-		System.out.println("Frequency of " + key + " in this BTree: (0)");
+		System.out.println(key + ": (0)");
 	}
 	
 	/**
@@ -318,8 +318,6 @@ public class BTree {
 	 * @throws IOException 
 	 */
 	public void treeInsertKey(KeyObject keyObject) throws IOException {
-		
-		System.err.println("Inside treeInsertKey: " + keyObject.getKey());
 		
 		BTreeNode rt = root;
 
@@ -352,10 +350,7 @@ public class BTree {
 	 * @throws IOException 
 	 */
 	public void nodeInsertKey(BTreeNode node, KeyObject keyObject) throws IOException {
-		
-		System.err.println("Inside nodeInsertKey: " + keyObject.getKey());
-		
-		// XXX: INFINITE LOOP HERE WHEN NODE IS NON-LEAF AND OBJECT AT I IS A DUPLICATE
+
 		while(!node.isLeaf) {	// While node is not leaf.
 
 			int i = node.numKeys - 1;
@@ -480,8 +475,6 @@ public class BTree {
 		 * @return false If key is not a duplicate.
 		 */
 		private boolean isDuplicateKey(KeyObject key, int i) {
-			
-			System.err.println("Inside isDuplicateKey: " + key.getKey());
 			
 			boolean keyIsDuplicate = false;
 

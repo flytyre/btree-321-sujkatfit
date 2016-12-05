@@ -18,7 +18,6 @@ public class KeyObject {
 	public KeyObject(long key) {
 		this.key = key;
 		setFrequency(0);
-		System.err.println("Inside keyObject constructor: " + getKey());
 	}
 	
 	/**
