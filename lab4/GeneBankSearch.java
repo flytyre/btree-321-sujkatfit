@@ -8,7 +8,7 @@ import java.util.Scanner;
  * 
  * Driver class: Searches given BTree using given query file.
  * 
- * @author 
+ * @author Sujeet Ayyapureddi, Margiawan Fitriani, Kathryn Silva
  *
  */
 public class GeneBankSearch {
@@ -93,7 +93,8 @@ public class GeneBankSearch {
 				}		
 			}
 
-			btree.search(Long.parseLong(bseq)); 
+			int freq = btree.search(Long.parseLong(bseq)); 
+			System.out.println(dseq + ": " + freq);
 			bseq = "";	
 		}
 		

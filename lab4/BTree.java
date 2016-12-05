@@ -1,13 +1,14 @@
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
 
 /**
- * [STATUS] Complete.
- * 
  * BTree Class.
  * 
  * @author Sujeet Ayyapureddi, Margiawan Fitriani, Kathryn Silva
@@ -96,6 +97,84 @@ public class BTree {
 		return node;
 	}
 
+	/**
+	 * 
+	 * @param f
+	 * @throws IOException
+	 */
+	public void inorderTreeTraversal(File f) throws IOException
+	{
+		FileWriter fstream = new FileWriter(f);
+		BufferedWriter out = new BufferedWriter(fstream);
+		
+		Stack<Pair> treeStack = new Stack<Pair> ();
+
+		treeStack.push(new Pair(0, 0));
+
+		while (!treeStack.isEmpty())
+		{
+			Pair pair = treeStack.pop();
+			BTreeNode currNode = diskReadNode(pair.getIndex());
+			int keyPosition = pair.getKeyPosition();
+
+
+			if (currNode.isLeaf)
+			{
+				//System.out.println(currNode.keyObjects[keyPosition]);
+				for (int i =0; i < currNode.numKeys; i++)
+				{
+					out.write(currNode.keyObjects[i].getFrequency() + "  " + currNode.keyObjects[i].getKey());
+					out.newLine();
+					//System.out.println(currNode.keyObjects[i].getFrequency() + "  " + currNode.keyObjects[i].getKey() );
+				}
+
+
+				continue;
+			}
+			else if (keyPosition > 0)
+			{
+				out.write(currNode.keyObjects[keyPosition - 1].getFrequency() + "  " + currNode.keyObjects[keyPosition - 1].getKey());
+				out.newLine();
+				//System.out.println(currNode.keyObjects[keyPosition - 1].getFrequency() + "  " + currNode.keyObjects[keyPosition - 1].getKey() );
+			}
+
+			if (keyPosition < currNode.numKeys)
+				treeStack.push(new Pair(pair.getIndex(), keyPosition+1));
+
+			BTreeNode childNode = diskReadNode(currNode.diskOffsets[keyPosition]);
+
+			treeStack.push(new Pair(childNode.index, 0));
+		}
+		//out.flush();
+		out.close();
+	}
+	
+	/**
+	 * 
+	 *
+	 */
+	private class Pair
+	{
+		private int index;
+		private int keyPosition;
+
+		private Pair(int index, int keyPosition)
+		{
+			this.index = index;
+			this.keyPosition = keyPosition;
+		}
+
+		int getIndex()
+		{
+			return index;
+		}
+
+		int getKeyPosition()
+		{
+			return keyPosition;
+		}
+	}
+	
 	/**
 	 * 
 	 * @param node to be persisted/written to disk
@@ -264,7 +343,7 @@ public class BTree {
 	 * @return null If the key could not be found.
 	 * @throws IOException
 	 */
-	public void search(long key) throws IOException {
+	public int search(long key) throws IOException {
 
 		BTreeNode node = root; 
 
@@ -286,10 +365,10 @@ public class BTree {
 						i = node.numKeys; // break out of loop
 					}
 
-					if (key == node.keyObjects[i].getKey()) {
-						int freq = node.keyObjects[i].getFrequency() + 1;
-						System.out.println(key + " (" + freq + ")");
-						return;
+					if (key == node.keyObjects[i].getKey()) {	// XXX: INDEX OUT OF BOUNDS HERE
+						return (node.keyObjects[i].getFrequency()) + 1;
+						//System.out.println(key + " (" + freq + ")");
+						//return;
 					}
 				}
 			}
@@ -301,15 +380,16 @@ public class BTree {
 			
 			for(int i = 0; i < node.numKeys; i++) {	
 				if (key == node.keyObjects[i].getKey()) {
-					int freq = node.keyObjects[i].getFrequency() + 1;
-					System.out.println(key + " (" + freq + ")");
-					return;
+					return (node.keyObjects[i].getFrequency()) + 1;
+					//System.out.println(key + " (" + freq + ")");
+					//return;
 				}
 			}
 		}
 		
 		// if method didn't return before now, search result was a miss
-		System.out.println(key + ": (0)");
+		//System.out.println(key + ": (0)");
+		return 0;
 	}
 	
 	/**

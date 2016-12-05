@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * [STATUS] Nearly complete.
  *
- * TODO: Implement debugging.
+ * TODO: Implement debugging level 1.
  * 
  * Driver class: Parses DNA sequences from file and creates BTree.
  * 
@@ -205,12 +205,13 @@ public class GeneBankCreateBTree {
 			
 		}
 		
+		System.err.println("The BTree has been successfully created from the given gbk file.");
 		scan.close();
-		System.out.println(tree.printBTree());
+		//System.out.println(tree.printBTree());
 		
 		if (debug == 1) {
 			File dump = new File("dump");
-			
+			tree.inorderTreeTraversal(dump);
 		}
 	}
 		
