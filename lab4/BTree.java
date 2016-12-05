@@ -381,6 +381,8 @@ public class BTree {
 				}
 
 				node = diskReadNode(node.diskOffsets[i]);
+			} else {
+				break;
 			}
 		}
 
@@ -403,7 +405,7 @@ public class BTree {
 					node.isFull = true ;
 				}
 
-			}
+			} 
 			diskWriteNode(node);
 		}
 	}
