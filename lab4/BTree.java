@@ -287,7 +287,7 @@ public class BTree {
 					}
 
 					if (key == node.keyObjects[i].getKey()) {
-						int freq = node.keyObjects[i].getFrequency();
+						int freq = node.keyObjects[i].getFrequency() + 1;
 						System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
 						return;
 					}
@@ -301,7 +301,7 @@ public class BTree {
 			
 			for(int i = 0; i < node.numKeys; i++) {	
 				if (key == node.keyObjects[i].getKey()) {
-					int freq = node.keyObjects[i].getFrequency();
+					int freq = node.keyObjects[i].getFrequency() + 1;
 					System.out.println("Frequency of " + key + " in this BTree: (" + freq + ")");
 					return;
 				}
@@ -319,6 +319,8 @@ public class BTree {
 	 */
 	public void treeInsertKey(KeyObject keyObject) throws IOException {
 		
+		System.err.println("Inside treeInsertKey: " + keyObject.getKey());
+		
 		BTreeNode rt = root;
 
 		if(rt.isFull) {  // Does a split. Creates a new root
@@ -334,11 +336,11 @@ public class BTree {
 
 			newRoot.diskOffsets[0] = diskWriteNode(rt) ;
 			newRoot.nodeSplit(0);
-			insertKeyObject(newRoot,keyObject);
+			nodeInsertKey(newRoot,keyObject);
 		}
 		
 		else {
-			insertKeyObject(root,keyObject);
+			nodeInsertKey(root,keyObject);
 		}
 	}
 	
@@ -349,27 +351,30 @@ public class BTree {
 	 * @param keyObject
 	 * @throws IOException 
 	 */
-	public void insertKeyObject(BTreeNode node, KeyObject keyObject) throws IOException {
-
-		while(!node.isLeaf) {	// While node is not leaf.
+	public void nodeInsertKey(BTreeNode node, KeyObject keyObject) throws IOException {
 		
-			int i = node.numKeys - 1;
+		System.err.println("Inside nodeInsertKey: " + keyObject.getKey());
+		
+		// XXX: INFINITE LOOP HERE WHEN NODE IS NON-LEAF AND OBJECT AT I IS A DUPLICATE
+		while(!node.isLeaf) {	// While node is not leaf.
 
-			if(!node.isDuplicateKey(keyObject, i)) {	// If key is a duplicate don't do any of the following.
+			int i = node.numKeys - 1;
 			
+			if(!node.isDuplicateKey(keyObject, i)) {	// If key is a duplicate don't do any of the following.
+
 				while(i >= 0 && (keyObject.compareTo(node.keyObjects[i]) == -1)) {
 					i = i - 1;
 				}
-				
+
 				i = i + 1;			// Go to the next child
 
 				BTreeNode child = new BTreeNode();
 				child  = diskReadNode(node.diskOffsets[i]);
 
 				if(child.isFull) {
-					
+
 					node.nodeSplit(i);
-					
+
 					if(keyObject.compareTo(node.keyObjects[i] )== 1) {		
 						i = i + 1 ;		// Change of index causes node to be written back to disk.
 					}
@@ -380,7 +385,7 @@ public class BTree {
 		}
 
 		if(node.isLeaf) {
-			
+
 			int i = node.numKeys - 1;
 
 			if(!node.isDuplicateKey(keyObject,i)) { // If key is a duplicate don't do any of the following.
@@ -393,13 +398,13 @@ public class BTree {
 				node.keyObjects[i + 1] = keyObject;
 				node.keyObjects[i + 1].incFrequency();
 				node.numKeys = node.numKeys + 1;
-				
+
 				if(node.numKeys == 2 * degree - 1) {
 					node.isFull = true ;
 				}
 
-				diskWriteNode(node);
 			}
+			diskWriteNode(node);
 		}
 	}
 
@@ -473,6 +478,8 @@ public class BTree {
 		 * @return false If key is not a duplicate.
 		 */
 		private boolean isDuplicateKey(KeyObject key, int i) {
+			
+			System.err.println("Inside isDuplicateKey: " + key.getKey());
 			
 			boolean keyIsDuplicate = false;
 
