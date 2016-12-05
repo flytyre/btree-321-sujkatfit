@@ -359,12 +359,16 @@ public class BTree {
 				// iterate through keys in this node, if key is 
 				// smaller than the key at an index in the node, 
 				// node becomes the child at the corresponding index
-				for(int i = 0; i < node.numKeys; i++) {	
+				for(int i = 0; i < node.numKeys; i++) {	// XXX: TRYING TO FIX IOOB
 					if (key < node.keyObjects[i].getKey()) {
 						node = diskReadNode(node.diskOffsets[i]);
 						i = node.numKeys; // break out of loop
 					}
-
+					
+					if (i == node.numKeys) {
+						i--; // please fix it ahhh
+					}
+					
 					if (key == node.keyObjects[i].getKey()) {	// XXX: INDEX OUT OF BOUNDS HERE
 						return (node.keyObjects[i].getFrequency()) + 1;
 						//System.out.println(key + " (" + freq + ")");
