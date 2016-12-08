@@ -95,8 +95,8 @@ public class GeneBankCreateBTree {
 		scan = new Scanner(gbk);	// throws clause required by Java, but code should never reach this point if gbk does not exist.
 		line = scan.nextLine();
 
-		System.err.println("Creating BTree with filename " + filename);
-		System.err.println("Populating BTree from given gbk file.  This may take some time.");
+		//System.err.println("Creating BTree with filename " + filename);
+		//System.err.println("Populating BTree from given gbk file.  This may take some time.");
 
 		/*
 		 * Collect and convert sequences, populate BTree.
@@ -110,10 +110,15 @@ public class GeneBankCreateBTree {
 		// 2) Collect all DNA sequences in one string
 		while (!line.contains(endflag) && scan.hasNextLine()) {
 			line = scan.nextLine().toLowerCase().trim();	// grab next line
+			if (line.contains(endflag)) {
+				dna += "n";
+			}
 			line = line.replaceAll("[^a-z]", "");
 			dna += line;
 		}
 
+		System.out.println(dna);
+		
 		// 3) Parse sequences from dna string
 		int start = 0;		// init cursor
 		while (start + k < dna.length()) {
@@ -163,7 +168,7 @@ public class GeneBankCreateBTree {
 		}
 
 
-		System.err.println("The BTree has been successfully created from the given gbk file.");
+		//System.err.println("The BTree has been successfully created from the given gbk file.");
 		scan.close();
 		//System.out.println(tree.printBTree());
 
