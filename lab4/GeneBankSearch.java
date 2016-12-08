@@ -17,11 +17,9 @@ public class GeneBankSearch {
 		int cache;
 		int cacheSize;
 		int debug = 0;
-		int k; 
 		File source;
 		File query;
 		Scanner scan;
-		String DELIMITER = "[actg]*";
 		String filename;
 		String dseq = "";
 		String bseq = "";
@@ -94,7 +92,9 @@ public class GeneBankSearch {
 			}
 
 			int freq = btree.search(Long.parseLong(bseq)); 
-			System.out.println(dseq + ": " + freq);
+			if (freq != 0) {
+				System.out.println(dseq + ": " + freq);
+			}
 			bseq = "";	
 		}
 		

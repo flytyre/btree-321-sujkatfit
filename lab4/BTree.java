@@ -1,6 +1,5 @@
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -29,7 +28,7 @@ public class BTree {
 	 * @throws IOException If the file is not found.
 	 */
 	public BTree(File f, int t) throws IOException {
-		
+
 		if (t == 0) {
 			degree = getDefaultDegree(); 
 		} else {
@@ -51,7 +50,7 @@ public class BTree {
 	 * @throws IOException If the file is not found.
 	 */
 	public BTree(File f) throws IOException {
-		
+
 		raf = new RandomAccessFile(f, "rw");
 		degree = getDegree();  
 		rootOffset = getRootOffset();
@@ -60,7 +59,7 @@ public class BTree {
 		root.hasIndex = true;
 		root = diskReadNode(0);
 	}
-	
+
 	/**
 	 * Reads the BTreeNode from the disk at the given offset.
 	 * @param offset
@@ -68,14 +67,14 @@ public class BTree {
 	 * @throws IOException
 	 */
 	private BTreeNode diskReadNode(long offset) throws IOException {
-		
+
 		raf.seek(rootOffset + offset * getNodeSize());
 
 		BTreeNode node = new BTreeNode();
 
 		// Reading the degree from the file.
 		node.nodeDegree = raf.readInt();
-		
+
 		// Reading the KeyObject
 		for(int i = 0; i < 2 * degree - 1; i++) {
 			node.keyObjects[i] = new KeyObject(raf.readLong());     // Key of the tree Object.
@@ -106,7 +105,7 @@ public class BTree {
 	{
 		FileWriter fstream = new FileWriter(f);
 		BufferedWriter out = new BufferedWriter(fstream);
-		
+
 		Stack<Pair> treeStack = new Stack<Pair> ();
 
 		treeStack.push(new Pair(0, 0));
@@ -148,7 +147,7 @@ public class BTree {
 		//out.flush();
 		out.close();
 	}
-	
+
 	/**
 	 * 
 	 *
@@ -174,7 +173,7 @@ public class BTree {
 			return keyPosition;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param node to be persisted/written to disk
@@ -192,7 +191,7 @@ public class BTree {
 		raf.seek(rootOffset+ node.index * getNodeSize());
 
 		raf.writeInt(degree);
-		
+
 		// Writing the KeyObject
 		for (int i = 0; i < 2 * degree - 1 ; i++) {
 			raf.writeLong(node.keyObjects[i].getKey());      // Key of the tree Object
@@ -212,7 +211,7 @@ public class BTree {
 
 		return node.index;
 	}
-	
+
 	/**
 	 * Increments disk index.
 	 * @return diskIndex
@@ -227,7 +226,7 @@ public class BTree {
 	 * @return size The size of the node in Bytes.
 	 */
 	public long getNodeSize() {
-		
+
 		int degreesize = Integer.BYTES ;
 		int keyobjectsize = Long.BYTES + Integer.BYTES ;
 		int diskoffsetsize = Long.BYTES ;
@@ -250,7 +249,7 @@ public class BTree {
 	 * @return degree The calulated optimal degree.
 	 */
 	public int getDefaultDegree() {
-		
+
 		int degreesize = Integer.BYTES ;
 		int keyobjectsize = Long.BYTES + Integer.BYTES ;
 		int diskoffsetsize = Long.BYTES ;
@@ -261,10 +260,10 @@ public class BTree {
 		int indexSize = Integer.BYTES ;
 
 		int degree = (int) Math.floor((4096 - (degreesize + isLeafsize + isFullsize + numKeyssize + hasIndexSize + indexSize + keyobjectsize)) / (2 * (diskoffsetsize + keyobjectsize))) ;
-		
+
 		return degree ;
 	}
-	
+
 	/**
 	 * Returns the degree stored on the disk.
 	 * @return
@@ -274,7 +273,7 @@ public class BTree {
 		raf.seek(0);
 		return raf.readInt();
 	}
-	
+
 	/**
 	 * Returns the root offset stored on the disk.
 	 * @return
@@ -283,23 +282,23 @@ public class BTree {
 	public int getRootOffset() throws IOException {
 		return raf.readInt();
 	}
-	
+
 	/**
 	 * Prints all nodes of the Btree level by level (BFS).
 	 */
 	public String printBTree() {
-		
+
 		Queue<BTreeNode> BTQueue = new LinkedList<BTreeNode>();
 		BTQueue.add(root);
-		
+
 		String s = "";
-		
+
 		while(!BTQueue.isEmpty()) {
-			
+
 			BTreeNode node = BTQueue.remove();
 			s += node.printNode();
 			s += "\n";
-			
+
 			if(!node.isLeaf) {
 				for (int i = 0; i <= node.numKeys; i++) {
 					try {
@@ -311,7 +310,7 @@ public class BTree {
 				}
 			}
 		}
-		
+
 		return s;
 	}
 
@@ -319,15 +318,15 @@ public class BTree {
 	 * Prints all nodes with their frequencies.
 	 */
 	public void printBTreeFreq() throws IOException {
-		
+
 		Queue<BTreeNode> BTQueue = new LinkedList<BTreeNode>();
 		BTQueue.add(root);
-		
+
 		while(!BTQueue.isEmpty()) {
-			
+
 			BTreeNode node = BTQueue.remove();
-			node.printNodeFreq();
-			
+			System.out.println(node.printNodeFreq());
+
 			if(!node.isLeaf) {
 				for(int i=0; i <= node.numKeys; i++) {
 					BTQueue.add(diskReadNode(node.diskOffsets[i]));
@@ -336,13 +335,6 @@ public class BTree {
 		}
 	}
 
-	/** 
-	 * Searches for a given key in the BTree.
-	 * @param key
-	 * @return SearchObject An object containing the node and index the given key is located at.
-	 * @return null If the key could not be found.
-	 * @throws IOException
-	 */
 	public int search(long key) throws IOException {
 
 		BTreeNode node = root; 
@@ -351,62 +343,73 @@ public class BTree {
 
 			// if key is larger than the largest key in this node,
 			// skip to this node's rightmost child
-			if (key > node.keyObjects[node.numKeys - 1].getKey()) {
+			if (key > node.keyObjects[node.numKeys-1].getKey()) {
 				node = diskReadNode(node.diskOffsets[node.numKeys]);
-				
 			} else {
 
 				// iterate through keys in this node, if key is 
 				// smaller than the key at an index in the node, 
 				// node becomes the child at the corresponding index
-				for(int i = 0; i < node.numKeys; i++) {	// XXX: TRYING TO FIX IOOB
+				// and exits the loop
+				boolean jumpNode = false;
+				for(int i = 0; i < node.numKeys && !jumpNode; i++) {
+					
+					if (key == node.keyObjects[i].getKey())
+						return (node.keyObjects[i].getFrequency());
+					
 					if (key < node.keyObjects[i].getKey()) {
 						node = diskReadNode(node.diskOffsets[i]);
-						i = node.numKeys; // break out of loop
-					}
-					
-					if (i == node.numKeys) {
-						i--; // please fix it ahhh
-					}
-					
-					if (key == node.keyObjects[i].getKey()) {	// XXX: INDEX OUT OF BOUNDS HERE
-						return (node.keyObjects[i].getFrequency()) + 1;
-						//System.out.println(key + " (" + freq + ")");
-						//return;
+						jumpNode = true;
 					}
 				}
+
+//				for(int i = 0; i < node.numKeys; i++) {
+//					if (key == node.keyObjects[i].getKey()) {
+//						//return (node.keyObjects[i].getFrequency()) + 1;
+//						//System.out.println("Hit! The key " + key + " is in the following node at index " + i + ":");
+//						return (node.keyObjects[i].getFrequency()) + 1;
+//						//node.printNodeFreq();
+//						//return;
+//					}
+//				}
 			}
 		}
-		
+
 		// now we have to process final node key might be in
+		// first check range, return null if out of range
 		// look for key in this node if in range
-		if (key <= node.keyObjects[node.numKeys - 1].getKey() && key >= node.keyObjects[0].getKey()) {
-			
+		//if (key <= node.keyObjects[node.numKeys].getKey() && key >= node.keyObjects[0].getKey()) {
+		if (key <= node.keyObjects[node.numKeys -1].getKey() && key >= node.keyObjects[0].getKey()) {
 			for(int i = 0; i < node.numKeys; i++) {	
 				if (key == node.keyObjects[i].getKey()) {
-					return (node.keyObjects[i].getFrequency()) + 1;
-					//System.out.println(key + " (" + freq + ")");
-					//return;
+					return (node.keyObjects[i].getFrequency());
 				}
 			}
 		}
-		
+
 		// if method didn't return before now, search result was a miss
-		//System.out.println(key + ": (0)");
+		//System.out.println("Miss! The key " + key + " is not in this BTree.");
 		return 0;
 	}
-	
+
+
+
+
+
+
+
+
 	/**
 	 * Inserts keyObject into the BTree.
 	 * @param keyObject given keyObject
 	 * @throws IOException 
 	 */
 	public void treeInsertKey(KeyObject keyObject) throws IOException {
-		
+
 		BTreeNode rt = root;
 
 		if(rt.isFull) {  // Does a split. Creates a new root
-			
+
 			BTreeNode newRoot = new BTreeNode();
 			root = newRoot ;
 			newRoot.isLeaf= false;
@@ -420,12 +423,12 @@ public class BTree {
 			newRoot.nodeSplit(0);
 			nodeInsertKey(newRoot,keyObject);
 		}
-		
+
 		else {
 			nodeInsertKey(root,keyObject);
 		}
 	}
-	
+
 	/**
 	 * Inserts the keyObject into the given Node.  
 	 * Method also makes sure that nodes are never full in the BTree. 
@@ -438,8 +441,8 @@ public class BTree {
 		while(!node.isLeaf) {	// While node is not leaf.
 
 			int i = node.numKeys - 1;
-			
-			if(!node.isDuplicateKey(keyObject, i)) {	// If key is a duplicate don't do any of the following.
+
+			if(!node.isDuplicateKey(keyObject)) {	// If key is a duplicate don't do any of the following.
 
 				while(i >= 0 && (keyObject.compareTo(node.keyObjects[i]) == -1)) {
 					i = i - 1;
@@ -454,13 +457,15 @@ public class BTree {
 
 					node.nodeSplit(i);
 
-					if(keyObject.compareTo(node.keyObjects[i] )== 1) {		
+					if(keyObject.compareTo(node.keyObjects[i] ) == 1) {		
 						i = i + 1 ;		// Change of index causes node to be written back to disk.
 					}
 				}
 
 				node = diskReadNode(node.diskOffsets[i]);
+				
 			} else {
+				//diskWriteNode(node);
 				break;
 			}
 		}
@@ -469,7 +474,7 @@ public class BTree {
 
 			int i = node.numKeys - 1;
 
-			if(!node.isDuplicateKey(keyObject,i)) { // If key is a duplicate don't do any of the following.
+			if(!node.isDuplicateKey(keyObject)) { // If key is a duplicate don't do any of the following.
 
 				while(i >= 0 && (keyObject.compareTo(node.keyObjects[i]) == -1)) {
 					node.keyObjects[i + 1] = node.keyObjects[i];
@@ -483,13 +488,12 @@ public class BTree {
 				if(node.numKeys == 2 * degree - 1) {
 					node.isFull = true ;
 				}
-
-			} 
-			diskWriteNode(node);
+			} 	
 		}
+		diskWriteNode(node);
 	}
 
-	
+
 	/**
 	 * BTree node class.
 	 * Inner class.
@@ -511,7 +515,7 @@ public class BTree {
 		 * Constructor.
 		 */
 		private BTreeNode() {
-			
+
 			nodeDegree = degree;
 			isLeaf = true;
 			keyObjects = new KeyObject[2 * degree - 1];
@@ -530,7 +534,7 @@ public class BTree {
 			index = -1;
 			hasIndex = false;	
 		}
-		
+
 		/**
 		 * Writes this node's degree to the disk.
 		 * @param degree
@@ -550,7 +554,7 @@ public class BTree {
 			raf.seek(Integer.BYTES);
 			raf.writeInt(rootOffset);
 		}
-			
+
 		/**
 		 * Checks to see if the key to be inserted is a duplicate.
 		 * @param node The node in which the key is being added.
@@ -558,26 +562,28 @@ public class BTree {
 		 * @return true If the key is a duplicate.
 		 * @return false If key is not a duplicate.
 		 */
-		private boolean isDuplicateKey(KeyObject key, int i) {
-			
+		private boolean isDuplicateKey(KeyObject key) {
+
 			boolean keyIsDuplicate = false;
 
-			if(i == -1) {
-				return keyIsDuplicate;
-			}
+//			if(i == -1) {
+//				return keyIsDuplicate;
+//			}
 
 			// Check for duplicates. If key is duplicate, inc Frequency.
 			int j = 0 ;
 			while(j < numKeys && (!keyIsDuplicate)) {
-				
+
 				if (key.compareTo(keyObjects[j]) == 0) {
 					keyObjects[j].incFrequency();
 					keyIsDuplicate = true;
-				}
 				
+				}
+
 				j++;
 			}
-			
+		
+
 			return keyIsDuplicate;
 		}
 
@@ -588,7 +594,7 @@ public class BTree {
 		 * @throws IOException 
 		 */
 		public void nodeSplit(int i) throws IOException {
-			
+
 			int index = i;
 
 			BTreeNode originalNode = diskReadNode(diskOffsets[index]);
@@ -613,7 +619,7 @@ public class BTree {
 					newNode.diskOffsets[count] = originalNode.diskOffsets[count + degree];
 				}
 			}
-			
+
 			//Change count to reflect split node
 			originalNode.numKeys = degree - 1;
 
@@ -658,7 +664,7 @@ public class BTree {
 		 * TODO: May change to return string instead of printing.
 		 */
 		public String printNode() {
-			
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("[");
 			for(int i = 0; i < this.numKeys ; i++)
@@ -666,7 +672,7 @@ public class BTree {
 				sb.append(this.keyObjects[i].getKey());
 				// Skip the last "|"
 				if (i != numKeys - 1) { 
-				sb.append("|");
+					sb.append("|");
 				}
 			}
 			sb.append("]");
@@ -678,10 +684,10 @@ public class BTree {
 		 * Prints node content and associated Frequency.
 		 */
 		public String printNodeFreq() {
-			
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("[");
-			
+
 			for(int i = 0; i < this.numKeys ; i++) {
 				sb.append(this.keyObjects[i].getKey());
 				sb.append("(");
